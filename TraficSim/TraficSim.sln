@@ -1,14 +1,18 @@
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2008
 
-
+Project("{F52499F9-1F32-BAF3-7D59-39067F133BE1}") = "TraficSim", "Assembly-CSharp.csproj", "{FB3F0D23-6B20-9FBD-F7BD-B796F0406D55}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-
+		{FB3F0D23-6B20-9FBD-F7BD-B796F0406D55}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB3F0D23-6B20-9FBD-F7BD-B796F0406D55}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB3F0D23-6B20-9FBD-F7BD-B796F0406D55}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB3F0D23-6B20-9FBD-F7BD-B796F0406D55}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

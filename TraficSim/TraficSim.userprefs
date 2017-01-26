@@ -1,9 +1,9 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/MoveCar.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/CarBehavior.cs">
     <Files>
-      <File FileName="Assets/MoveCar.cs" Line="33" Column="4" />
-      <File FileName="Assets/cameraBehavior.cs" Line="17" Column="77" />
+      <File FileName="Assets/Scripts/CameraBehavior.cs" Line="29" Column="2" />
+      <File FileName="Assets/Scripts/CarBehavior.cs" Line="11" Column="26" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
