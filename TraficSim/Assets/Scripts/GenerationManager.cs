@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 /*
  * Class 	   : GenerationManager
@@ -10,10 +11,15 @@ public class GenerationManager : MonoBehaviour {
 
 	// Variables declaration
 	public GameObject _goSceneRoads;	// All the roads in the scene
-	public GameObject _goSceneCars;		// All the cars in the scene
+	public Text _txtCarOutput;			// The text zone for the output
 
 	private Vector3[] _v3Coordinates;	// The car spawn coordinates
-	private float _fltTimer;			// Timer for the cars spawn
+	private Vector3 _v3PrevSpawn;		// The last spawn coordinates (To not spawn twice on the same place)
+	private float _fltGenerationTimer;	// Timer for the cars spawn
+	private float _fltOutputTimer;		// Timer for the output update
+	private int[] _intAverageOutputs;	// Array containing the average outputs
+	private int _intArrayCount;			// The current place in the average output array
+
 
 	/*
 	 * Function 	: Start()
@@ -27,8 +33,27 @@ public class GenerationManager : MonoBehaviour {
 		// Gets the car spawn coordinates
 		_v3Coordinates = GetSpawnCoordinates();
 
-		// Initializes the timer
-		_fltTimer = 0;
+		// Initializes the timers
+		_fltGenerationTimer = 0;
+		_fltOutputTimer 	= 0;
+
+		// Initializes the previous spawn point
+		_v3PrevSpawn = new Vector3(0, 0, 0);
+
+		// Initializes the output text
+		_txtCarOutput.text = "Débit 0 min";
+
+		// Initializes the average outputs array
+		_intAverageOutputs = new int[20];
+		_intArrayCount 	   = 0;
+
+		// Initializes the values
+		for (int i = 0; i < _intAverageOutputs.Length; i++)
+			_intAverageOutputs [i] = 0;
+			
+		// Initializes the update average every second
+		InvokeRepeating("UpdateAverageOutput", 0, 1f);
+
 	}
 	
 	/*
@@ -37,18 +62,63 @@ public class GenerationManager : MonoBehaviour {
 	 */
 	void FixedUpdate () {
 
-		// Updates the timer
-		_fltTimer += Time.deltaTime;
+		// Updates the timers
+		_fltGenerationTimer += Time.deltaTime;
+		_fltOutputTimer 	+= Time.deltaTime;
 
 		// If the time passed, spawns new cars
-		if (_fltTimer > Config.FLT_CARS_DENSITY_SEC) {
+		if (_fltGenerationTimer > Config.FLT_CARS_DENSITY_SEC) {
 
 			// Generates the cars
 			GenCars(_v3Coordinates);
 
 			// Resets the timer
-			_fltTimer = 0;
+			_fltGenerationTimer = 0;
 		}
+
+		// If the time passed, updates the output text
+
+
+		if (_fltOutputTimer > 2) {
+
+			// Gets average number of cars that passed during one second
+			float _fltCarsAverage = 0;
+
+			foreach (int _nbCars in _intAverageOutputs) {
+				_fltCarsAverage += _nbCars;
+				//Debug.Log (_nbCars);
+			}
+
+			// Gets the average
+			_fltCarsAverage = _fltCarsAverage / _intAverageOutputs.Length * 60;
+
+			// Updates the output text
+			_txtCarOutput.text = "Débit : " + _fltCarsAverage + " min";
+			Debug.Log (_fltCarsAverage);
+
+			// Resets the timer
+			_fltOutputTimer = 0;
+		}
+	}
+
+	/*
+	 * Function 	: UpdateAverageOutput()
+	 * Description  : Updates the average output. Places the amount of cars that passed during one second in the output array
+	 */
+	void UpdateAverageOutput () {
+		Debug.Log ("Called " + Config.INT_CARS_OUTPUT);
+		// Puts the value in the array
+		_intAverageOutputs[_intArrayCount] = Config.INT_CARS_OUTPUT;
+
+		// Updates the array count
+		_intArrayCount += 1;
+
+		// Resets the cars count
+		Config.INT_CARS_OUTPUT = 0;
+
+		// Resets the array count if max value
+		if (_intArrayCount == _intAverageOutputs.Length)
+			_intArrayCount = 0;
 	}
 
 	/*
@@ -181,9 +251,14 @@ public class GenerationManager : MonoBehaviour {
 		int _intNbRoads  	 = Config.INT_NB_ROADS;  	// The number of roads on each side
 		int _intLeftSpawnX   = _intRoadSize / 2 * -1;	// The X coordinate for the car spawns
 		int _intRightSpawnX  = _intRoadSize / 2;		// The X coordinate for the car spawns
+		int _intLaneId		 = 0;						// The lane id where the next car will spawn
 
-		// Spawns a car in a random lane
-		int _intLaneId = Random.Range(0, _v3SpawnPoints.Length); // Gets the random lane
+		// Checks if the spawn point is not the same as the previous one
+		do {
+			// Spawns a car in a random lane
+			_intLaneId = Random.Range (0, _v3SpawnPoints.Length); // Gets the random lane
+
+		} while (_v3SpawnPoints [_intLaneId] == _v3PrevSpawn);
 
 		// Spawns a car on coordinates and orientates it
 		GameObject _goCar = (GameObject)Instantiate(Resources.Load("Car_01"));
@@ -191,11 +266,15 @@ public class GenerationManager : MonoBehaviour {
 
 		// Rotates the car
 		if (_v3SpawnPoints[_intLaneId].x == _intLeftSpawnX) {
+
+			// Rotates
 			_goCar.transform.rotation = Quaternion.Euler(0, 90, 0);
 
 			// Set the car direction
 			_goCar.GetComponent<CarBehavior>()._v3CarDirection = Vector3.right;
 		} else {
+
+			// Rotates
 			_goCar.transform.rotation = Quaternion.Euler(0, -90, 0);
 
 			// Set the car direction

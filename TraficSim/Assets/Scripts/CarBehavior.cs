@@ -69,8 +69,12 @@ public class CarBehavior : MonoBehaviour {
 
 		// Detects the end of the road
 		if (transform.position.x > (_intRoadLength / 2) + 1 || transform.position.x < (_intRoadLength / 2 * -1) - 1) {
+
 			// Destroys the current car
 			Destroy(gameObject);
+
+			// Updates the car output counter
+			Config.INT_CARS_OUTPUT += 1;
 		}
 	}
 
@@ -92,14 +96,14 @@ public class CarBehavior : MonoBehaviour {
 		if (Physics.Raycast (_rRangeDetection, out _rhCarInRange, Config.FLT_AHEAD_CAR_DETECTION_DIST)) {
 
 			// Checks if the current speed is higher than the hit car speed
-			if (_fltCarSpeed > _rhCarInRange.transform.gameObject.GetComponent<CarBehavior> ()._fltCarSpeed || _rhCarInRange.distance < Config.FLT_DRIVER_SAFETY_DIST) {
+			if (_fltCarSpeed > _rhCarInRange.transform.gameObject.GetComponent<CarBehavior> ()._fltCarSpeed && _rhCarInRange.distance < Config.FLT_DRIVER_SAFETY_DIST) {
 
 				// If it's higher, slows the current speed
 				_fltCarSpeed -= Config.FLT_DRIVER_DECELERATION_SPEED;
-			} else if (_fltCarSpeed < _fltCarInitialSpeed && _rhCarInRange.distance > 0.5f) {
+			} else if (_fltCarSpeed < _fltCarInitialSpeed && _rhCarInRange.distance > Config.FLT_DRIVER_SAFETY_DIST) {
 
-				// Else if, speeds up the car while the speed is lower than the global
-				_fltCarSpeed += Config.FLT_DRIVER_ACCELERATION_SPEED;
+				// Else if, speeds up the car a little bit while the speed is lower than the global
+				_fltCarSpeed += Config.FLT_DRIVER_ACCELERATION_SPEED / 4;
 			}
 		} else if (_fltCarSpeed < _fltCarInitialSpeed) {
 
