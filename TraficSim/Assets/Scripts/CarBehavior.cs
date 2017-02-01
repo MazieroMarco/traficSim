@@ -13,6 +13,7 @@ public class CarBehavior : MonoBehaviour {
 	public float _fltRandomSpeed;					// The custom speed factor of the car
 	public float _fltCarSpeed;						// The current total speed of the car
 
+	public bool PROBLEM = false;
 	private float _fltCarInitialSpeed;				// The initial speed before detections (used during the detections)
 
 
@@ -23,10 +24,10 @@ public class CarBehavior : MonoBehaviour {
 	void Start () {
 
 		// Initializes the random speed factor
-		_fltRandomSpeed = Random.Range(Config.FLT_DRIVERS_SPEED_FACTOR * -1, Config.FLT_DRIVERS_SPEED_FACTOR);
+		_fltRandomSpeed = Random.Range(0, Config.FLT_DRIVERS_SPEED_FACTOR_KMH);
 
 		// Intializes the total car speed
-		_fltCarSpeed = (Config.INT_SPEED_LIMIT_KMH * 100 / 60 / 60) + _fltRandomSpeed;
+		_fltCarSpeed = ((_fltRandomSpeed + Config.INT_SPEED_LIMIT_KMH) * 100 / 60 / 60);
 
 		// Sets the initial speed
 		_fltCarInitialSpeed = _fltCarSpeed;
@@ -38,6 +39,9 @@ public class CarBehavior : MonoBehaviour {
 	 */
 	void FixedUpdate () {
 
+		if (PROBLEM)
+			_fltCarSpeed -= Config.FLT_DRIVER_DECELERATION_SPEED;
+		
 		// Moves the car
 		CarMoveForward();
 
@@ -54,8 +58,14 @@ public class CarBehavior : MonoBehaviour {
 	 */
 	void CarMoveForward () {
 
-		// Moves the car forward
-		transform.Translate(new Vector3(0, 0, _fltCarSpeed) * Time.deltaTime);
+		// Puts the car speed to 0 if under 0
+		if (_fltCarSpeed < 0)
+			_fltCarSpeed = 0;
+
+		// Moves the car forward if the speed is not under 0
+		if (_fltCarSpeed >= 0) {
+			transform.Translate(new Vector3(0, 0, _fltCarSpeed) * Time.deltaTime);
+		}
 	}
 
 	/*
@@ -95,19 +105,52 @@ public class CarBehavior : MonoBehaviour {
 		// Casts the detection zone to find cars ahead. It returns trus if detection
 		if (Physics.Raycast (_rRangeDetection, out _rhCarInRange, Config.FLT_AHEAD_CAR_DETECTION_DIST)) {
 
-			// Checks if the current speed is higher than the hit car speed
-			if (_fltCarSpeed > _rhCarInRange.transform.gameObject.GetComponent<CarBehavior> ()._fltCarSpeed && _rhCarInRange.distance < Config.FLT_DRIVER_SAFETY_DIST) {
+			////////////////////////////////////////////////////////////
+			/// Distance detections
+			////////////////////////////////////////////////////////////
+			if (_rhCarInRange.distance < 0.3f) { // Between 0 and 2 meters
 
-				// If it's higher, slows the current speed
-				_fltCarSpeed -= Config.FLT_DRIVER_DECELERATION_SPEED;
-			} else if (_fltCarSpeed < _fltCarInitialSpeed && _rhCarInRange.distance > Config.FLT_DRIVER_SAFETY_DIST) {
+				// Slows down the car to avoid collision
+				_fltCarSpeed -= Config.FLT_DRIVER_DECELERATION_SPEED * 2;
 
-				// Else if, speeds up the car a little bit while the speed is lower than the global
-				_fltCarSpeed += Config.FLT_DRIVER_ACCELERATION_SPEED / 4;
+			} else if (_rhCarInRange.distance > 0.3f && _rhCarInRange.distance < 0.6f) { // Between 2 and 5 meters
+
+				// Slows down the car to the detected car speed to avoid collision
+				if (_fltCarSpeed > _rhCarInRange.transform.gameObject.GetComponent<CarBehavior> ()._fltCarSpeed) {
+
+					// Slows down the car
+					_fltCarSpeed -= Config.FLT_DRIVER_DECELERATION_SPEED;
+				}
+
+			} else if (_rhCarInRange.distance > 0.6f && _rhCarInRange.distance < 0.8f) { // Between 5 and 7 meters
+
+			} else if (_rhCarInRange.distance > 0.8f && _rhCarInRange.distance < 1f) { // Between 7 and 10 meters
+
+				// Speeds up the car to reach the detected car speed
+				if (_fltCarSpeed < _rhCarInRange.transform.gameObject.GetComponent<CarBehavior> ()._fltCarSpeed) {
+
+					// Speeds up the car
+					_fltCarSpeed += Config.FLT_DRIVER_ACCELERATION_SPEED;
+				}
 			}
-		} else if (_fltCarSpeed < _fltCarInitialSpeed) {
+			////////////////////////////////////////////////////////////
 
-			// Else if, speeds up the car while the speed is lower than the global
+			////////////////////////////////////////////////////////////
+			/// Anomalies / stange behaviors
+			////////////////////////////////////////////////////////////
+
+			// If there's a very slow object on the road
+			if (_rhCarInRange.transform.gameObject.GetComponent<CarBehavior> ()._fltCarSpeed < (Config.INT_SPEED_LIMIT_KMH * 100 / 60 / 60 / 2)) {
+
+				// Already slows down the car
+				_fltCarSpeed -= Config.FLT_DRIVER_DECELERATION_SPEED;
+			}
+		}
+
+		// If the car speed is lower thant the initial, speeds it up
+		if (_fltCarSpeed < _fltCarInitialSpeed) {
+			
+			// Speeds up the car
 			_fltCarSpeed += Config.FLT_DRIVER_ACCELERATION_SPEED;
 		}
 	}

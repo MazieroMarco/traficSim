@@ -50,7 +50,8 @@
      <Compile Include="Assets\Scripts\CarBehavior.cs" />
      <Compile Include="Assets\Scripts\Config.cs" />
      <Compile Include="Assets\Scripts\GenerationManager.cs" />
-     <None Include="Assets\Lowpoly_Sports_Car_2_in_1\readme.txt" />
+     <Compile Include="Assets\Scripts\UserInterface.cs" />
+     <None Include="Assets\Modèles\Lowpoly_Sports_Car_2_in_1\readme.txt" />
  <Reference Include="UnityEngine.Purchasing">
  <HintPath>/Volumes/OSX/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/UnityPurchasing/UnityEngine.Purchasing.dll</HintPath>
  </Reference>

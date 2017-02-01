@@ -57,7 +57,7 @@ public class GenerationManager : MonoBehaviour {
 	}
 	
 	/*
-	 * Function 	: Update()
+	 * Function 	: FixedUpdate()
 	 * Description  : Called every frame
 	 */
 	void FixedUpdate () {
@@ -94,7 +94,6 @@ public class GenerationManager : MonoBehaviour {
 
 			// Updates the output text
 			_txtCarOutput.text = "Débit : " + _fltCarsAverage + " min";
-			Debug.Log (_fltCarsAverage);
 
 			// Resets the timer
 			_fltOutputTimer = 0;
@@ -106,7 +105,7 @@ public class GenerationManager : MonoBehaviour {
 	 * Description  : Updates the average output. Places the amount of cars that passed during one second in the output array
 	 */
 	void UpdateAverageOutput () {
-		Debug.Log ("Called " + Config.INT_CARS_OUTPUT);
+		
 		// Puts the value in the array
 		_intAverageOutputs[_intArrayCount] = Config.INT_CARS_OUTPUT;
 
@@ -252,6 +251,7 @@ public class GenerationManager : MonoBehaviour {
 		int _intLeftSpawnX   = _intRoadSize / 2 * -1;	// The X coordinate for the car spawns
 		int _intRightSpawnX  = _intRoadSize / 2;		// The X coordinate for the car spawns
 		int _intLaneId		 = 0;						// The lane id where the next car will spawn
+		int _intCarModel	 = 0;						// The random number of the car model
 
 		// Checks if the spawn point is not the same as the previous one
 		do {
@@ -260,22 +260,29 @@ public class GenerationManager : MonoBehaviour {
 
 		} while (_v3SpawnPoints [_intLaneId] == _v3PrevSpawn);
 
+		// Gets the random car model
+		_intCarModel = Random.Range(1, 5);
+		Debug.Log (_intCarModel + " " + "Car_0" + _intCarModel);
 		// Spawns a car on coordinates and orientates it
-		GameObject _goCar = (GameObject)Instantiate(Resources.Load("Car_01"));
+		GameObject _goCar = (GameObject)Instantiate(Resources.Load("Car_0" + _intCarModel));
+
+		// Gets the high position of the car and applies it
+		float _fltCarHigh = _goCar.transform.position.y;
 		_goCar.transform.position = _v3SpawnPoints[_intLaneId];
+		_goCar.transform.position = new Vector3 (_goCar.transform.position.x, _fltCarHigh, _goCar.transform.position.z);
 
 		// Rotates the car
 		if (_v3SpawnPoints[_intLaneId].x == _intLeftSpawnX) {
 
 			// Rotates
-			_goCar.transform.rotation = Quaternion.Euler(0, 90, 0);
+			_goCar.transform.rotation = Quaternion.Euler(_goCar.transform.rotation.x, 90, _goCar.transform.rotation.z);
 
 			// Set the car direction
 			_goCar.GetComponent<CarBehavior>()._v3CarDirection = Vector3.right;
 		} else {
 
 			// Rotates
-			_goCar.transform.rotation = Quaternion.Euler(0, -90, 0);
+			_goCar.transform.rotation = Quaternion.Euler(_goCar.transform.rotation.x, -90, _goCar.transform.rotation.z);
 
 			// Set the car direction
 			_goCar.GetComponent<CarBehavior>()._v3CarDirection = Vector3.left;
