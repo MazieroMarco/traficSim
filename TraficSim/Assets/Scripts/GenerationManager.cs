@@ -28,10 +28,13 @@ public class GenerationManager : MonoBehaviour {
 	void Start () {
 
 		// Initializes the roads
-		GenRoads();
+		GenRoads2();
 
 		// Gets the car spawn coordinates
 		_v3Coordinates = GetSpawnCoordinates();
+
+		// Dtores the spawn coordinates in the global array
+		Config.V3_SPAWN_COORDINATES = _v3Coordinates;
 
 		// Initializes the timers
 		_fltGenerationTimer = 0;
@@ -120,6 +123,14 @@ public class GenerationManager : MonoBehaviour {
 			_intArrayCount = 0;
 	}
 
+	void GenRoads2 () {
+		new Road (true);
+		new Road (true);
+		new Road (false);
+		new Road (false);
+
+	}
+
 	/*
 	 * Function 	: GenRoads()
 	 * Description  : Generates the roads depending on the user preferences
@@ -148,7 +159,7 @@ public class GenerationManager : MonoBehaviour {
 		for (i = 0; i < _intNbRoads * 2; i++) {
 
 			// Defines the position of the current road piece
-			int _intRoadX = _intRoadSize / 2 * -1;	// If 10 value equals -5
+			int _intRoadX = _intRoadSize / 2 * - 1;	// If 10 value equals -5
 
 			// Draws the left side
 			for (j = 0; j < _intRoadSize; j++) {
@@ -262,7 +273,7 @@ public class GenerationManager : MonoBehaviour {
 
 		// Gets the random car model
 		_intCarModel = Random.Range(1, 5);
-		Debug.Log (_intCarModel + " " + "Car_0" + _intCarModel);
+
 		// Spawns a car on coordinates and orientates it
 		GameObject _goCar = (GameObject)Instantiate(Resources.Load("Car_0" + _intCarModel));
 

@@ -82,11 +82,7 @@ public class CameraBehavior : MonoBehaviour {
 
 		/// Mouse camera management ///
 		// Detects the up and down mouse wheel movment
-		if (caCamera1.transform.position.y < _fltCamera1DownLimit && Input.GetAxis ("Mouse ScrollWheel") < 0) {
-
-			// Moves the camera
-			caCamera1.transform.Translate(Vector3.forward * Input.GetAxis("Mouse ScrollWheel") / 5);
-		} else if (caCamera1.transform.position.y > _fltCamera1UpLimit && Input.GetAxis ("Mouse ScrollWheel") > 0) {
+		if ((caCamera1.transform.position.y < _fltCamera1DownLimit && Input.GetAxis ("Mouse ScrollWheel") < 0) || (caCamera1.transform.position.y > _fltCamera1UpLimit && Input.GetAxis ("Mouse ScrollWheel") > 0)) {
 
 			// Moves the camera
 			caCamera1.transform.Translate(Vector3.forward * Input.GetAxis("Mouse ScrollWheel") / 5);
