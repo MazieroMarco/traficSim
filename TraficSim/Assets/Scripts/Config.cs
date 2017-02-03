@@ -5,10 +5,10 @@ using UnityEngine;
 public static class Config {
 
 	// Hand modificable global variables
-	public static int INT_ROAD_SIZE 		 		  = 100;  			  // The size / 10 of the road
-	public static int INT_NB_ROADS  		 		  = 2;   			  // Number of roads
+	public static int INT_ROAD_SIZE 		 		  = 30;  			  // The size / 10 of the road
+	public static int INT_NB_ROADS  		 		  = 3;   			  // Number of roads
 	public static int INT_SPEED_LIMIT_KMH	 		  = 100; 			  // All cars speed limit in KM/H
-	public static float FLT_CARS_DENSITY_SEC 		  = 0.2f;			  // The number of seconds before car spawn
+	public static float FLT_CARS_DENSITY_SEC 		  = 0.15f;			  // The number of seconds before car spawn
 	public static float FLT_DRIVERS_SPEED_FACTOR_KMH  = 20;	    		  // The random speed factor for each driver
 	public static float FLT_AHEAD_CAR_DETECTION_DIST  = 2f;				  // Distance for the ahead cars detection
 	public static float FLT_DRIVER_SAFETY_DIST		  = 0.2f;			  // The distance when the driver starts to slow down (HAS TO BE LOWER THAN THE DETECTION DISTANCE)
@@ -18,6 +18,5 @@ public static class Config {
 
 	// Non hand modificable global variables
 	public static int INT_CARS_OUTPUT 				  = 0;				  // The amount of cars passing on the road
-	public static Vector3[] V3_SPAWN_COORDINATES	  = new Vector3[0];	  // The spawn coordinates of the cars
 	public static List<Road> LI_GAME_ROADS			  = new List<Road>(); // Contains all the roads
 }
