@@ -38,7 +38,7 @@ public class GenerationManager : MonoBehaviour {
 		_v3PrevSpawn = new Vector3(0, 0, 0);
 
 		// Initializes the output text
-		_txtCarOutput.text = "Débit 0 min";
+		_txtCarOutput.text = "Débit : 0 /min";
 
 		// Initializes the average outputs array
 		_intAverageOutputs = new int[20];
@@ -90,7 +90,7 @@ public class GenerationManager : MonoBehaviour {
 			_fltCarsAverage = _fltCarsAverage / _intAverageOutputs.Length * 60;
 
 			// Updates the output text
-			_txtCarOutput.text = "Débit : " + _fltCarsAverage + " min";
+			_txtCarOutput.text = "Débit : " + _fltCarsAverage + " /min";
 
 			// Resets the timer
 			_fltOutputTimer = 0;

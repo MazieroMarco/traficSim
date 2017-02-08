@@ -45,21 +45,21 @@ public class CameraBehavior : MonoBehaviour {
 	void Update () {
 
 		// Updates the sun rotation
-		_goSun.transform.Rotate(-0.005f, 0, 0);
+		_goSun.transform.Rotate(-0.2f * Time.deltaTime, 0, 0, Space.World);
 
-		// Updates the active camera
-		if (caCamera1.enabled == true) {
+		// Updates the active camera if it's enabled and the menu is not active
+		if (caCamera1.enabled == true && !Config.BLN_IS_INTERFACE_ACTIVE) {
 
 			// Updates the camera
 			UpdateCamera1();
-		} else if (_caCamera2.enabled == true) {
+		} else if (_caCamera2.enabled == true && !Config.BLN_IS_INTERFACE_ACTIVE) {
 			
 			// Updates the camera
 			UpdateCamera2();
 		}
 
-		// If space key is pressed, changes camera
-		if (Input.GetKeyDown (KeyCode.Space)) {
+		// If space key is pressed, changes camera if the menu is not active
+		if (Input.GetKeyDown (KeyCode.Space) && !Config.BLN_IS_INTERFACE_ACTIVE) {
 
 			// Changes the cameras
 			if (caCamera1.enabled == true) {
