@@ -35,3 +35,8 @@
 /Volumes/OSX/Cours/Pratique/Projet APPRO/Projet/TraficSim/Temp/bin/Debug/Mono.Cecil.Mdb.dll
 /Volumes/OSX/Cours/Pratique/Projet APPRO/Projet/TraficSim/Temp/bin/Debug/UnityEditor.iOS.Extensions.Xcode.dll
 /Volumes/OSX/Cours/Pratique/Projet APPRO/Projet/TraficSim/Temp/bin/Debug/UnityEditor.iOS.Extensions.Xcode.xml
+/Volumes/OSX/Cours/Pratique/Projet APPRO/Projet/TraficSim/Temp/bin/Debug/UnityEditor.WindowsStandalone.Extensions.dll
+/Volumes/OSX/Cours/Pratique/Projet APPRO/Projet/TraficSim/Temp/bin/Debug/Assembly-CSharp-firstpass.dll
+/Volumes/OSX/Cours/Pratique/Projet APPRO/Projet/TraficSim/Temp/bin/Debug/Assembly-CSharp-firstpass.dll.mdb
+/Volumes/OSX/Cours/Pratique/Projet APPRO/Projet/TraficSim/Temp/bin/Debug/Assembly-CSharp-Editor-firstpass.dll
+/Volumes/OSX/Cours/Pratique/Projet APPRO/Projet/TraficSim/Temp/bin/Debug/Assembly-CSharp-Editor-firstpass.dll.mdb

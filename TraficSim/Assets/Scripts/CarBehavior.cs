@@ -30,9 +30,6 @@ public class CarBehavior : MonoBehaviour {
 		// Variables declaration
 		bool _blnPossibleSpawn = false;
 
-		// Sets the car tag
-		this.tag = "Car";
-
 		// Gets a random road and checks if there's a place to spawn
 		do {
 
@@ -51,7 +48,6 @@ public class CarBehavior : MonoBehaviour {
 				// No car detected, spawn possible
 				_blnPossibleSpawn = true;
 			}
-
 		} while (!_blnPossibleSpawn);
 
 
@@ -79,8 +75,16 @@ public class CarBehavior : MonoBehaviour {
 		// Initializes the random speed factor
 		_fltRandomSpeed = Random.Range(Config.FLT_DRIVERS_SPEED_FACTOR_KMH * -1, Config.FLT_DRIVERS_SPEED_FACTOR_KMH);
 
-		// Intializes the total car speed
-		_fltCarSpeed = ((_fltRandomSpeed + Config.INT_SPEED_LIMIT_KMH) * 100 / 60 / 60);
+		// Intializes the total car/truck speed
+		if (this.tag == "Truck" && Config.INT_SPEED_LIMIT_KMH > 80) {
+
+			// Updates the speed for the truck
+			_fltCarSpeed = ((_fltRandomSpeed + Config.INT_SPEED_LIMIT_KMH_TRUCK) * 100 / 60 / 60);
+		} else {
+
+			// Updates the speed for the car
+			_fltCarSpeed = ((_fltRandomSpeed + Config.INT_SPEED_LIMIT_KMH) * 100 / 60 / 60);
+		}
 
 		// Sets the initial speed
 		_fltCarInitialSpeed = _fltCarSpeed;
@@ -104,8 +108,17 @@ public class CarBehavior : MonoBehaviour {
 		// Check for destroy
 		CarDestroyOnLimit();
 
-		// Updates the initial speed (in case of menu change)
-		_fltCarInitialSpeed = ((_fltRandomSpeed + Config.INT_SPEED_LIMIT_KMH) * 100 / 60 / 60);
+
+		// Updates the initial speed (in case of menu change), Limits the speed to 80 if the vehicle is a truck
+		if (this.tag == "Truck" && Config.INT_SPEED_LIMIT_KMH > 80) {
+
+			// Updates the speed for the truck
+			_fltCarInitialSpeed = ((_fltRandomSpeed + Config.INT_SPEED_LIMIT_KMH_TRUCK) * 100 / 60 / 60);
+		} else {
+
+			// Updates the speed for the car
+			_fltCarInitialSpeed = ((_fltRandomSpeed + Config.INT_SPEED_LIMIT_KMH) * 100 / 60 / 60);
+		}
 	}
 
 	/*
@@ -264,7 +277,7 @@ public class CarBehavior : MonoBehaviour {
 			float _fltAdjZ = _liRoads[_intCurrentRoadIndex + 1].GetSpawnOrigin().z;
 
 			// Initiates the raycast on Z-
-			float _fltRayXPos = _v3CarDirection == Vector3.left ? transform.position.x + _fltSecurityDistance - 0.5f: transform.position.x - _fltSecurityDistance + 0.5f; // The X position of the ray
+			float _fltRayXPos = _v3CarDirection == Vector3.left ? transform.position.x + _fltSecurityDistance - 1f: transform.position.x - _fltSecurityDistance + 1f; // The X position of the ray
 			RaycastHit _rhCarInRange;	// This is the car detected in the hit range
 			Ray _rRangeDetection = new Ray () {direction = Vector3.right, origin = new Vector3 (_fltRayXPos, transform.position.y, _fltAdjZ)};
 
@@ -291,7 +304,7 @@ public class CarBehavior : MonoBehaviour {
 			float _fltAdjZ = _liRoads[_intCurrentRoadIndex - 1].GetSpawnOrigin().z;
 
 			// Initiates the raycast on Z-
-			float _fltRayXPos = _v3CarDirection == Vector3.left ? transform.position.x + _fltSecurityDistance - 0.5f: transform.position.x - _fltSecurityDistance + 0.5f; // The X position of the ray
+			float _fltRayXPos = _v3CarDirection == Vector3.left ? transform.position.x + _fltSecurityDistance - 1f: transform.position.x - _fltSecurityDistance + 1f; // The X position of the ray
 			RaycastHit _rhCarInRange;	// This is the car detected in the hit range
 			Ray _rRangeDetection = new Ray () {direction = Vector3.right, origin = new Vector3 (_fltRayXPos, transform.position.y, _fltAdjZ)};
 
@@ -333,7 +346,7 @@ public class CarBehavior : MonoBehaviour {
 			_fltCarSpeed = 1.5f;
 		
 		// Variables declaration
-		float _fltmoveSpeed = 0.01f;
+		float _fltmoveSpeed = 0.008f;
 
 		// If changing on Z+
 		if (_blnPositiveTranslate) {

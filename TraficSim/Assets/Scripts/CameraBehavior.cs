@@ -213,10 +213,9 @@ public class CameraBehavior : MonoBehaviour {
 	*/
 	void UpdateCamera4() {
 
-		/*/ (DEBUG ONLY) Allows to stop the car on the road
+		// (DEBUG ONLY) Allows to stop the car on the road
 		if (Input.GetKeyDown (KeyCode.P))
 			_cbRandomCar.PROBLEM = !_cbRandomCar.PROBLEM;
-		*/
 
 		// Gets a random car if the current has been destroyed or if the left / right key is pressed
 		if (_cbRandomCar == null || Input.GetKeyDown (KeyCode.LeftArrow) || Input.GetKeyDown (KeyCode.RightArrow))
@@ -242,7 +241,7 @@ public class CameraBehavior : MonoBehaviour {
 			_liAllCars.AddRange (_road._liCars);
 		}
 
-		return _liAllCars [_liAllCars.Count - 1];
+		return _liAllCars [Random.Range(0, _liAllCars.Count - 1)];
 	}
 
 	/*

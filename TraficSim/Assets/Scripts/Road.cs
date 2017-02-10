@@ -107,7 +107,7 @@ public class Road : Component {
 			// Generates the new road piece
 			GameObject _goRoadPiece = (GameObject)Instantiate(Resources.Load("Road_01"));
 
-			// Sets the road position an parent object
+			// Sets the road position and parent object
 			_goRoadPiece.transform.position = new Vector3 (i, 0, _fltRoadZPos);
 			_goRoadPiece.transform.parent	= GameObject.Find ("Roads").transform;
 

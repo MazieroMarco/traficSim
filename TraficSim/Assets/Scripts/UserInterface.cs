@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-
+using UnityStandardAssets.ImageEffects;
 /*
  * Class 	   : UserInterface
  * Descirption : This is all the user configuration interface class
@@ -17,6 +17,12 @@ public class UserInterface : MonoBehaviour {
 
 		// If the ESC key is pressed, enables / disables the interface
 		if (Input.GetKeyDown (KeyCode.Escape)) {
+
+			// Enables disables the camera blur
+			GameObject.Find("Camera_01").GetComponent<Blur>().enabled = !GameObject.Find("Camera_01").GetComponent<Blur>().enabled;
+			GameObject.Find("Camera_02").GetComponent<Blur>().enabled = !GameObject.Find("Camera_02").GetComponent<Blur>().enabled;
+			GameObject.Find("Camera_03").GetComponent<Blur>().enabled = !GameObject.Find("Camera_03").GetComponent<Blur>().enabled;
+			GameObject.Find("Camera_04").GetComponent<Blur>().enabled = !GameObject.Find("Camera_04").GetComponent<Blur>().enabled;
 
 			// Enables / Disables the canvas and all the configuration interface
 			GameObject.Find ("CanvasInterface").GetComponent<Canvas> ().enabled = !GameObject.Find ("CanvasInterface").GetComponent<Canvas> ().enabled;

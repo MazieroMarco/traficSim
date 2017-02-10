@@ -136,11 +136,26 @@ public class GenerationManager : MonoBehaviour {
 
 		// Variables declaration
 		int _intCarModel	 = 0;	// The random number of the car model
+		int _intVehicleType  = 0;	// The type of the vehicle (Car, truck, ...)
 
-		// Gets a random car model
-		_intCarModel = Random.Range(1, 5);
+		// Gets the vehicle type
+		_intVehicleType = Random.Range(0, 10);
 
-		// Instanciates a car on the scene
-		GameObject.Instantiate(Resources.Load("Car_0" + _intCarModel));
+		// Generates a car or a truck
+		if (_intVehicleType == 0) {
+
+			// Gets a random truck model
+			_intCarModel = Random.Range(1, 5);
+
+			// Instanciates a car on the scene
+			GameObject.Instantiate(Resources.Load("Truck_0" + _intCarModel));
+		} else {
+
+			// Gets a random car model
+			_intCarModel = Random.Range(1, 5);
+
+			// Instanciates a car on the scene
+			GameObject.Instantiate(Resources.Load("Car_0" + _intCarModel));
+		}
 	}
 }
