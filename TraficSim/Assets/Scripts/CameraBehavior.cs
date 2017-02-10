@@ -213,23 +213,14 @@ public class CameraBehavior : MonoBehaviour {
 	*/
 	void UpdateCamera4() {
 
-		// Gets a random car if the current has been destroyed
-		if (_cbRandomCar == null || Input.GetKeyDown (KeyCode.R))
-			_cbRandomCar = GetRandomCar ();
-		if (Input.GetKey (KeyCode.LeftArrow))
-			_cbRandomCar.gameObject.transform.Rotate (Vector3.down*3);
-		if (Input.GetKey (KeyCode.RightArrow))
-			_cbRandomCar.gameObject.transform.Rotate (Vector3.up*3);
-		if (Input.GetKey (KeyCode.UpArrow))
-			_cbRandomCar._fltCarSpeed += Config.FLT_DRIVER_ACCELERATION_SPEED;
-		if (Input.GetKey (KeyCode.DownArrow))
-			_cbRandomCar._fltCarSpeed -= Config.FLT_DRIVER_DECELERATION_SPEED;
-		if (Input.GetKey (KeyCode.W))
-			_cbRandomCar.transform.Rotate(3,0,0);
-		if (Input.GetKey (KeyCode.S))
-			_cbRandomCar.transform.Rotate(-2,0,0);
+		/*/ (DEBUG ONLY) Allows to stop the car on the road
 		if (Input.GetKeyDown (KeyCode.P))
 			_cbRandomCar.PROBLEM = !_cbRandomCar.PROBLEM;
+		*/
+
+		// Gets a random car if the current has been destroyed or if the left / right key is pressed
+		if (_cbRandomCar == null || Input.GetKeyDown (KeyCode.LeftArrow) || Input.GetKeyDown (KeyCode.RightArrow))
+			_cbRandomCar = GetRandomCar ();
 		
 		_caCamera4.transform.position = new Vector3(_cbRandomCar.transform.position.x, _cbRandomCar.transform.position.y + 0.05f, _cbRandomCar.transform.position.z);
 
