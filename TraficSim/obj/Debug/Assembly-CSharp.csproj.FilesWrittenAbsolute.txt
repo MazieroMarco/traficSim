@@ -19,3 +19,5 @@
 /Volumes/OSX/Cours/Pratique/Projet APPRO/Projet/TraficSim/Temp/bin/Debug/Assembly-CSharp.dll
 /Volumes/OSX/Cours/Pratique/Projet APPRO/Projet/TraficSim/obj/Debug/Assembly-CSharp.dll
 /Volumes/OSX/Cours/Pratique/Projet APPRO/Projet/TraficSim/obj/Debug/Assembly-CSharp.dll.mdb
+/Volumes/OSX/Cours/Pratique/Projet APPRO/Projet/TraficSim/Temp/bin/Debug/Assembly-CSharp-firstpass.dll
+/Volumes/OSX/Cours/Pratique/Projet APPRO/Projet/TraficSim/Temp/bin/Debug/Assembly-CSharp-firstpass.dll.mdb

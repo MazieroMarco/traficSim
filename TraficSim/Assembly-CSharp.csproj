@@ -46,9 +46,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Assets\Scripts\MovementControl.cs" />
      <Compile Include="Assets\Scripts\CameraBehavior.cs" />
      <Compile Include="Assets\Scripts\CarBehavior.cs" />
      <Compile Include="Assets\Scripts\Config.cs" />
+     <Compile Include="Assets\Scripts\FPSDisplay.cs" />
      <Compile Include="Assets\Scripts\GenerationManager.cs" />
      <Compile Include="Assets\Scripts\Road.cs" />
      <Compile Include="Assets\Scripts\UserInterface.cs" />

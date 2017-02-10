@@ -48,7 +48,14 @@ public class Road : Component {
 			Destroy(_goPiece);
 		}
 			
-		Config.LI_GAME_ROADS.Remove(Config.LI_GAME_ROADS.FirstOrDefault(a=>a==this));
+		// Destroys every car on the current road
+		foreach (CarBehavior _goCar in _liCars) {
+
+			// Destroys the car
+			Destroy(_goCar.gameObject);
+		}
+
+		Config.LI_GAME_ROADS.Remove(Config.LI_GAME_ROADS.FirstOrDefault(a=>a._intRoadID==this._intRoadID));
 	}
 
 	/*

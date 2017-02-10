@@ -15,7 +15,7 @@ public static class Config {
 	public static float FLT_DRIVER_SAFETY_DIST		  = 0.2f;			  // The distance when the driver starts to slow down (HAS TO BE LOWER THAN THE DETECTION DISTANCE)
 	public static float FLT_DRIVER_ACCELERATION_SPEED = 0.03f;			  // The acceleration speed when the driver speeds up the car
 	public static float FLT_DRIVER_DECELERATION_SPEED = 0.08f;			  // The deceleration speed when the driver slows down the car
-	public static float FLT_SECURITY_DIST_CHANGE_LANE = 1f;				  // The security distance to verify on the next lane before changing
+	public static float FLT_SECURITY_DIST_CHANGE_LANE = 3f;				  // The security distance to verify on the next lane before changing
 
 
 	// Non hand modificable global variables

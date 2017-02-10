@@ -14,7 +14,6 @@ public class GenerationManager : MonoBehaviour {
 	public Text _txtCarOutput;			// The text zone for the output
 
 	private Vector3[] _v3Coordinates;	// The car spawn coordinates
-	private Vector3 _v3PrevSpawn;		// The last spawn coordinates (To not spawn twice on the same place)
 	private float _fltGenerationTimer;	// Timer for the cars spawn
 	private float _fltOutputTimer;		// Timer for the output update
 	private int[] _intAverageOutputs;	// Array containing the average outputs
@@ -33,9 +32,6 @@ public class GenerationManager : MonoBehaviour {
 		// Initializes the timers
 		_fltGenerationTimer = 0;
 		_fltOutputTimer 	= 0;
-
-		// Initializes the previous spawn point
-		_v3PrevSpawn = new Vector3(0, 0, 0);
 
 		// Initializes the output text
 		_txtCarOutput.text = "Débit : 0 /min";
@@ -145,6 +141,6 @@ public class GenerationManager : MonoBehaviour {
 		_intCarModel = Random.Range(1, 5);
 
 		// Instanciates a car on the scene
-		GameObject _goCar = (GameObject)Instantiate(Resources.Load("Car_0" + _intCarModel));
+		GameObject.Instantiate(Resources.Load("Car_0" + _intCarModel));
 	}
 }
