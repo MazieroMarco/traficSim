@@ -24,6 +24,8 @@ public class CameraBehavior : MonoBehaviour {
 	// Camera 2 variables
 	private float _fltCamera2UpLimit;
 	private float _fltCamera2DownLimit;
+	private float _fltCamera2HighUpLimit;
+	private float _fltCamera2HighDownLimit;
 
 	// Camera 3 variables
 	private float _fltCamera3UpLimit;
@@ -39,14 +41,16 @@ public class CameraBehavior : MonoBehaviour {
 	void Start () {
 
 		// Variables initialization
-		_fltCamera1LeftLimit  = Config.INT_ROAD_SIZE / 2 * -1; // Limit depends on the chosen size of the road
-		_fltCamera1RightLimit = Config.INT_ROAD_SIZE / 2;	   // Limit depends on the chosen size of the road
-		_fltCamera1UpLimit	  = 3;							   // The higher value limit
-		_fltCamera1DownLimit  = 10;							   // The lower value limit
-		_fltCamera2UpLimit	  = Config.INT_ROAD_SIZE / 2 * -1; // The second camera up limit
-		_fltCamera2DownLimit  = Config.INT_ROAD_SIZE / 2;	   // The second camera down limit
-		_fltCamera3UpLimit	  = Config.INT_ROAD_SIZE / 2 * -1; // The third camera up limit
-		_fltCamera3DownLimit  = Config.INT_ROAD_SIZE / 2;	   // The third camera down limit
+		_fltCamera1LeftLimit     = Config.INT_ROAD_SIZE / 2 * -1; // Limit depends on the chosen size of the road
+		_fltCamera1RightLimit    = Config.INT_ROAD_SIZE / 2;	   // Limit depends on the chosen size of the road
+		_fltCamera1UpLimit	     = 3;							   // The higher value limit
+		_fltCamera1DownLimit     = 10;							   // The lower value limit
+		_fltCamera2UpLimit	     = Config.INT_ROAD_SIZE / 2 * -1; // The second camera up limit
+		_fltCamera2DownLimit     = Config.INT_ROAD_SIZE / 2;	   // The second camera down limit
+		_fltCamera2HighUpLimit   = 3;
+		_fltCamera2HighDownLimit = 1;
+		_fltCamera3UpLimit	     = Config.INT_ROAD_SIZE / 2 * -1; // The third camera up limit
+		_fltCamera3DownLimit     = Config.INT_ROAD_SIZE / 2;	   // The third camera down limit
 
 		// Disables the cameras
 		DisableAllCameras();
@@ -185,7 +189,24 @@ public class CameraBehavior : MonoBehaviour {
 			_caCamera2.transform.Translate(Vector3.right * Input.GetAxis("Mouse ScrollWheel") * 4 * Time.deltaTime, Space.World);
 		}
 
-		_caCamera2.transform.Translate(Vector3.left / 70, Space.World);
+		/// Management of the camera displacement on the y axis ///
+		// Detects the down arrow key
+		if (Input.GetKey (KeyCode.DownArrow)) {
+			if (_caCamera2.transform.position.y > _fltCamera2HighDownLimit) {
+				// Moves the camera to the right
+				_caCamera2.transform.position = new Vector3(_caCamera2.transform.position.x, _caCamera2.transform.position.y - 1.5f * Time.deltaTime, _caCamera2.transform.position.z);
+				_caCamera2.transform.Rotate (-20 * Time.deltaTime, 0, 0);
+			}
+		}
+
+		// Detects the up arrow key
+		if (Input.GetKey (KeyCode.UpArrow)) {
+			if (_caCamera2.transform.position.y < _fltCamera2HighUpLimit) {
+				// Moves the camera to the right
+				_caCamera2.transform.position = new Vector3(_caCamera2.transform.position.x, _caCamera2.transform.position.y + 1.5f * Time.deltaTime, _caCamera2.transform.position.z);
+				_caCamera2.transform.Rotate (20 * Time.deltaTime, 0, 0);
+			}
+		}
 	}
 
 	/*
