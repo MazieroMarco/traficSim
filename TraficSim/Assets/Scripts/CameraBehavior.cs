@@ -13,7 +13,7 @@ public class CameraBehavior : MonoBehaviour {
 	public Camera _caCamera2;
 	public Camera _caCamera3;
 	public Camera _caCamera4;
-	public GameObject _goSun;
+	private bool FogBool = false;
 
 	// Camera 1 variables
 	private float _fltCamera1LeftLimit;
@@ -71,8 +71,8 @@ public class CameraBehavior : MonoBehaviour {
 		_fltCamera3UpLimit	  = Config.INT_ROAD_SIZE / 2 * -1; // The third camera up limit
 		_fltCamera3DownLimit  = Config.INT_ROAD_SIZE / 2;	   // The third camera down limit
 
-		// Updates the sun rotation
-		_goSun.transform.Rotate(-0.2f * Time.deltaTime, 0, 0, Space.World);
+		// Updates the cameras fogs
+		UpdateCameraFog();
 
 		// Updates the active camera if it's enabled and the menu is not active
 		if (_caCamera1.enabled == true && !Config.BLN_IS_INTERFACE_ACTIVE) {
@@ -235,12 +235,24 @@ public class CameraBehavior : MonoBehaviour {
 	void UpdateCamera4() {
 
 		// (DEBUG ONLY) Allows to stop the car on the road
+		if (Input.GetKey (KeyCode.UpArrow))
+			_cbRandomCar.transform.Rotate (Vector3.right);
+		if (Input.GetKey (KeyCode.DownArrow))
+			_cbRandomCar.transform.Rotate (Vector3.left);
+		if (Input.GetKey (KeyCode.LeftArrow))
+			_cbRandomCar.transform.Rotate (Vector3.down);
+		if (Input.GetKey (KeyCode.RightArrow))
+			_cbRandomCar.transform.Rotate (Vector3.up);
+		if (Input.GetKey (KeyCode.Q))
+			_cbRandomCar._fltCarSpeed += Config.FLT_DRIVER_ACCELERATION_SPEED;
 		if (Input.GetKeyDown (KeyCode.P))
 			_cbRandomCar.PROBLEM = !_cbRandomCar.PROBLEM;
+		if (Input.GetKeyDown (KeyCode.R))
+			_cbRandomCar = GetRandomCar ();
 
 		// Gets a random car if the current has been destroyed or if the left / right key is pressed
-		if (_cbRandomCar == null || Input.GetKeyDown (KeyCode.LeftArrow) || Input.GetKeyDown (KeyCode.RightArrow))
-			_cbRandomCar = GetRandomCar ();
+		//if (_cbRandomCar == null || Input.GetKeyDown (KeyCode.LeftArrow) || Input.GetKeyDown (KeyCode.RightArrow))
+		//	_cbRandomCar = GetRandomCar ();
 		
 		_caCamera4.transform.position = new Vector3(_cbRandomCar.transform.position.x, _cbRandomCar.transform.position.y + 0.05f, _cbRandomCar.transform.position.z);
 
@@ -263,6 +275,98 @@ public class CameraBehavior : MonoBehaviour {
 		}
 
 		return _liAllCars [Random.Range(0, _liAllCars.Count - 1)];
+	}
+
+	/*
+	 * Function    : UpdateCameraFog()
+	 * Description : Updates the cameras fogs depending on the time of the day
+	 */
+	void UpdateCameraFog() {
+
+		// Variables declaration
+		float _fltCurrentTime = Config.FLT_TIME_OF_DAY;
+
+		// Checks the time of day
+		if (_fltCurrentTime < 0.2f) {
+
+			// Night fog
+			StartCoroutine(ChangeFogDensity (0.005f, true));
+			StartCoroutine (ChangeFogColor (RenderSettings.fogColor, new Color (0.07f, 0.07f, 0.07f)));
+
+		} else if (_fltCurrentTime >= 0.2f && _fltCurrentTime < 0.25f) {
+
+			// Sunrise fog
+			StartCoroutine (ChangeFogColor (RenderSettings.fogColor, new Color (0.41f, 0.38f, 0.25f)));
+
+		} else if (_fltCurrentTime >= 0.25f && _fltCurrentTime < 0.7f) {
+
+			// Day fog
+			StartCoroutine(ChangeFogDensity (0.01f, true));
+			StartCoroutine (ChangeFogColor (RenderSettings.fogColor, new Color (0.18f, 0.30f, 0.41f)));
+
+		} else if (_fltCurrentTime >= 0.70f && _fltCurrentTime < 0.75f) {
+
+			// Sunset fog
+			StartCoroutine(ChangeFogDensity (0.005f, false));
+			StartCoroutine (ChangeFogColor (RenderSettings.fogColor, new Color (0.45f, 0.38f, 0.25f)));
+
+		} else if (_fltCurrentTime > 0.75f) {
+
+			// Night fog
+			StartCoroutine (ChangeFogColor (RenderSettings.fogColor, new Color (0.07f, 0.07f, 0.07f)));
+		}
+	}
+
+	/*
+	 * Function    : ChangeFogDensity()
+	 * Description : Changes the fog density from one to another
+	 */
+	IEnumerator ChangeFogDensity (float _fltTo, bool _blnIncrease) {
+
+		// Repeates the condition only once
+		if (RenderSettings.fogDensity != _fltTo) {
+			
+			if (!_blnIncrease) {
+
+				// Decreases
+				while (RenderSettings.fogDensity > _fltTo) {
+					RenderSettings.fogDensity -= 0.0001f;
+					yield return new WaitForEndOfFrame ();
+				}
+			} else {
+
+				// Increases
+				while (RenderSettings.fogDensity < _fltTo) {
+					RenderSettings.fogDensity += 0.0001f;
+					yield return new WaitForEndOfFrame ();
+				}
+			}
+		}
+	}
+
+	/*
+	 * Function    : ChangeFogColor()
+	 * Description : Changes the fog color from one to another
+	 */
+	IEnumerator ChangeFogColor (Color _fltFrom, Color _fltTo) {
+
+		// Checks if the color is alerady the there
+		if (RenderSettings.fogColor != _fltTo) {
+
+			// Variables delcaration
+			float _fltTimer = 0;
+
+			// Updates the color
+			while (_fltTimer < 1) {
+
+				// Lerp
+				RenderSettings.fogColor = Color.Lerp(_fltFrom, _fltTo, _fltTimer);
+
+				// Timer update
+				_fltTimer += 0.05f;
+				yield return new WaitForEndOfFrame ();
+			}
+		}
 	}
 
 	/*

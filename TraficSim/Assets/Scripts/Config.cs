@@ -23,4 +23,5 @@ public static class Config {
 	public static int INT_CARS_OUTPUT 				  = 0;				  // The amount of cars passing on the road
 	public static List<Road> LI_GAME_ROADS			  = new List<Road>(); // Contains all the roads
 	public static bool BLN_IS_INTERFACE_ACTIVE		  = false;			  // Used to know if the interface is activated or not
+	public static float FLT_TIME_OF_DAY				  = 0;				  // The time of the day (from 0.0 to 1.0)
 }
