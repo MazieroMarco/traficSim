@@ -20,7 +20,8 @@ public static class Config {
 
 	// Non hand modificable global variables
 	public static int INT_SPEED_LIMIT_KMH_TRUCK	 	  = 80; 			  // All cars speed limit in KM/H
-	public static int INT_CARS_OUTPUT 				  = 0;				  // The amount of cars passing on the road
+	public static int INT_CARS_OUTPUT_LEFT 			  = 0;				  // The amount of cars passing on the left roads
+	public static int INT_CARS_OUTPUT_RIGHT 		  = 0;				  // The amount of cars passing on the right roads
 	public static List<Road> LI_GAME_ROADS			  = new List<Road>(); // Contains all the roads
 	public static bool BLN_IS_INTERFACE_ACTIVE		  = false;			  // Used to know if the interface is activated or not
 	public static float FLT_TIME_OF_DAY				  = 0;				  // The time of the day (from 0.0 to 1.0)

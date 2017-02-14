@@ -153,14 +153,17 @@ public class CarBehavior : MonoBehaviour {
 		// If the car finishes the road
 		if ((_rdCarRoad._blnDirectionRight && transform.position.x > _rdCarRoad.GetEndOfTheRoad().x) || (!_rdCarRoad._blnDirectionRight && transform.position.x < _rdCarRoad.GetEndOfTheRoad().x)) {
 
+			// Updates the car output counter
+			if (_rdCarRoad._blnDirectionRight)
+				Config.INT_CARS_OUTPUT_RIGHT += 1;
+			else
+				Config.INT_CARS_OUTPUT_LEFT += 1;
+
 			// Removes the car from the list
 			_rdCarRoad._liCars.Remove(_rdCarRoad._liCars.FirstOrDefault(a=>a==this));
 
 			// Destroys the current car
 			Destroy(gameObject);
-
-			// Updates the car output counter
-			Config.INT_CARS_OUTPUT += 1;
 		}
 	}
 

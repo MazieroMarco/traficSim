@@ -55,6 +55,9 @@ public class CameraBehavior : MonoBehaviour {
 		// Disables the cameras
 		DisableAllCameras();
 		_caCamera1.enabled = true;
+
+		// Adds force at the begginning
+		_caCamera1.GetComponent<Rigidbody>().AddForce(new Vector3(0, -12f, 12f), ForceMode.VelocityChange);
 	}
 
 	/*
@@ -63,6 +66,10 @@ public class CameraBehavior : MonoBehaviour {
 	 */
 	void Update () {
 
+		// Changes the first camera velocity at the beggining
+		if (_caCamera1.GetComponent<Rigidbody>().velocity != Vector3.zero)
+			_caCamera1.GetComponent<Rigidbody>().AddForce(new Vector3(0, 0.4f, -0.4f), ForceMode.VelocityChange);
+		
 		// Variables update
 		_fltCamera1LeftLimit  = Config.INT_ROAD_SIZE / 2 * -1; // Limit depends on the chosen size of the road
 		_fltCamera1RightLimit = Config.INT_ROAD_SIZE / 2;	   // Limit depends on the chosen size of the road
@@ -287,33 +294,47 @@ public class CameraBehavior : MonoBehaviour {
 		float _fltCurrentTime = Config.FLT_TIME_OF_DAY;
 
 		// Checks the time of day
-		if (_fltCurrentTime < 0.2f) {
+		if (_fltCurrentTime < 0.225f) {
 
 			// Night fog
 			StartCoroutine(ChangeFogDensity (0.005f, true));
-			StartCoroutine (ChangeFogColor (RenderSettings.fogColor, new Color (0.07f, 0.07f, 0.07f)));
+			StartCoroutine (ChangeFogColor (RenderSettings.fogColor, new Color (0.06f, 0.06f, 0.08f)));
 
-		} else if (_fltCurrentTime >= 0.2f && _fltCurrentTime < 0.25f) {
+		} else if (_fltCurrentTime >= 0.225f && _fltCurrentTime < 0.25f) {
 
 			// Sunrise fog
-			StartCoroutine (ChangeFogColor (RenderSettings.fogColor, new Color (0.41f, 0.38f, 0.25f)));
+			StartCoroutine(ChangeFogDensity (0.008f, true));
+			StartCoroutine (ChangeFogColor (RenderSettings.fogColor, new Color (0.5f, 0.51f, 0.41f)));
 
-		} else if (_fltCurrentTime >= 0.25f && _fltCurrentTime < 0.7f) {
+		} else if (_fltCurrentTime >= 0.25f && _fltCurrentTime < 0.4f) {
 
-			// Day fog
+			// Day / morning fog
 			StartCoroutine(ChangeFogDensity (0.01f, true));
 			StartCoroutine (ChangeFogColor (RenderSettings.fogColor, new Color (0.18f, 0.30f, 0.41f)));
 
-		} else if (_fltCurrentTime >= 0.70f && _fltCurrentTime < 0.75f) {
+		} else if (_fltCurrentTime >= 0.4f && _fltCurrentTime < 0.6f) {
+
+			// Day fog
+			StartCoroutine(ChangeFogDensity (0.007f, false));
+			StartCoroutine (ChangeFogColor (RenderSettings.fogColor, new Color (0.43f, 0.55f, 0.69f)));
+
+		} else if (_fltCurrentTime >= 0.6f && _fltCurrentTime < 0.74f) {
+
+			// Day / sunset fog
+			StartCoroutine(ChangeFogDensity (0.01f, true));
+			StartCoroutine (ChangeFogColor (RenderSettings.fogColor, new Color (0.18f, 0.30f, 0.41f)));
+
+		}else if (_fltCurrentTime >= 0.74f && _fltCurrentTime < 0.765f) {
 
 			// Sunset fog
-			StartCoroutine(ChangeFogDensity (0.005f, false));
+			StartCoroutine(ChangeFogDensity (0.008f, false));
 			StartCoroutine (ChangeFogColor (RenderSettings.fogColor, new Color (0.45f, 0.38f, 0.25f)));
 
-		} else if (_fltCurrentTime > 0.75f) {
+		} else if (_fltCurrentTime > 0.765f) {
 
 			// Night fog
-			StartCoroutine (ChangeFogColor (RenderSettings.fogColor, new Color (0.07f, 0.07f, 0.07f)));
+			StartCoroutine(ChangeFogDensity (0.005f, false));
+			StartCoroutine (ChangeFogColor (RenderSettings.fogColor, new Color (0.06f, 0.06f, 0.08f)));
 		}
 	}
 
@@ -330,14 +351,14 @@ public class CameraBehavior : MonoBehaviour {
 
 				// Decreases
 				while (RenderSettings.fogDensity > _fltTo) {
-					RenderSettings.fogDensity -= 0.0001f;
+					RenderSettings.fogDensity -= 0.000001f;
 					yield return new WaitForEndOfFrame ();
 				}
 			} else {
 
 				// Increases
 				while (RenderSettings.fogDensity < _fltTo) {
-					RenderSettings.fogDensity += 0.0001f;
+					RenderSettings.fogDensity += 0.000001f;
 					yield return new WaitForEndOfFrame ();
 				}
 			}
@@ -363,7 +384,7 @@ public class CameraBehavior : MonoBehaviour {
 				RenderSettings.fogColor = Color.Lerp(_fltFrom, _fltTo, _fltTimer);
 
 				// Timer update
-				_fltTimer += 0.05f;
+				_fltTimer += 0.005f;
 				yield return new WaitForEndOfFrame ();
 			}
 		}
