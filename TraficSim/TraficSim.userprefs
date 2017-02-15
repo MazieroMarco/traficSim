@@ -2,12 +2,12 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/CameraBehavior.cs">
     <Files>
+      <File FileName="Assets/Scripts/UserInterface.cs" Line="334" Column="45" />
       <File FileName="Assets/Scripts/DayAndNightControl.cs" Line="33" Column="40" />
-      <File FileName="Assets/Scripts/CarBehavior.cs" Line="160" Column="32" />
-      <File FileName="Assets/Scripts/CameraBehavior.cs" Line="321" Column="67" />
+      <File FileName="Assets/Scripts/CarBehavior.cs" Line="98" Column="39" />
+      <File FileName="Assets/Scripts/CameraBehavior.cs" Line="280" Column="79" />
       <File FileName="Assets/Scripts/GenerationManager.cs" Line="30" Column="27" />
-      <File FileName="Assets/Scripts/UserInterface.cs" Line="82" Column="8" />
-      <File FileName="Assets/Scripts/Config.cs" Line="24" Column="98" />
+      <File FileName="Assets/Scripts/Config.cs" Line="29" Column="100" />
       <File FileName="Assets/Scripts/Road.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>

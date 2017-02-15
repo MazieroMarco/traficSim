@@ -13,13 +13,12 @@ public class CarBehavior : MonoBehaviour {
 	public float _fltRandomSpeed;						// The custom speed factor of the car
 	public float _fltCarSpeed;							// The current total speed of the car
 	public Vector3 _v3CarDirection = Vector3.right;		// The current direction of the car
-
-	public bool PROBLEM = false;
+	public Road _rdCarRoad;								// The current car road
+	public bool _blnCarProblem = false;					// Used to stop the car on the road
 
 	// Private variables declaration
 	private float _fltCarInitialSpeed;					// The initial speed before detections (used during the detections)
 	private int _intRandomRoad;							// The random road index to generate the car
-	private Road _rdCarRoad;							// The current car road
 
 	/*
 	 * Function 	: Start()
@@ -95,8 +94,9 @@ public class CarBehavior : MonoBehaviour {
 	 * Description  : Called every frame
 	 */
 	void FixedUpdate () {
-		
-		if (PROBLEM)
+
+		// Stops the car if it has a problem
+		if (_blnCarProblem)
 			_fltCarSpeed -= Config.FLT_DRIVER_DECELERATION_SPEED;
 		
 		// Moves the car
@@ -133,7 +133,8 @@ public class CarBehavior : MonoBehaviour {
 			// Puts to 0
 			_fltCarSpeed = 0;
 
-			if (!PROBLEM && Random.Range(1, 50) == 2)
+			// Changes lane if the car is stopped
+			if (!_blnCarProblem && Random.Range(1, 50) == 2)
 				ChangeLane (Config.FLT_SECURITY_DIST_CHANGE_LANE);
 		}
 			
@@ -150,6 +151,10 @@ public class CarBehavior : MonoBehaviour {
 	 */
 	void CarDestroyOnLimit () {
 
+		// If the user has the control returns immediately
+		if (Config.BLN_CAR_CONTROL && this == GameObject.Find("SceneScripts").GetComponent<CameraBehavior>()._cbRandomCar)
+			return;
+		
 		// If the car finishes the road
 		if ((_rdCarRoad._blnDirectionRight && transform.position.x > _rdCarRoad.GetEndOfTheRoad().x) || (!_rdCarRoad._blnDirectionRight && transform.position.x < _rdCarRoad.GetEndOfTheRoad().x)) {
 

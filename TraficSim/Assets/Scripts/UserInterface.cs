@@ -28,9 +28,6 @@ public class UserInterface : MonoBehaviour {
 		// Initializes the timers
 		_fltOutputTimer = 0;
 
-		// Initialize the variables
-		_blnIsGraphsActive = false;
-
 		// Initializes the outputs text
 		_txtCarOutputLeft 		= GameObject.Find("carOutputLeft").GetComponent<Text>();
 		_txtCarOutputRight 		= GameObject.Find("carOutputRight").GetComponent<Text>();
@@ -53,6 +50,7 @@ public class UserInterface : MonoBehaviour {
 		
 		// Initializes the update average every second
 		InvokeRepeating("UpdateAverageOutputs", 0, 1f);
+		InvokeRepeating("UpdateGraphs", 0, 1f);
 
 	}
 
@@ -62,8 +60,9 @@ public class UserInterface : MonoBehaviour {
 	 */
 	void Update () {
 
+		/// MENU INTERFACE ///
 		// If the ESC key is pressed, enables / disables the menu interface
-		if (Input.GetKeyDown (KeyCode.Escape)) {
+		if (Input.GetKeyDown (KeyCode.Escape) && (!Config.BLN_IS_INTERFACE_ACTIVE || GameObject.Find ("CanvasInterface").GetComponent<Canvas> ().enabled)) {
 
 			//Enables disables the camera blur
 			GameObject.Find("Camera_01").GetComponent<Blur>().enabled = !GameObject.Find("Camera_01").GetComponent<Blur>().enabled;
@@ -78,22 +77,55 @@ public class UserInterface : MonoBehaviour {
 			Config.BLN_IS_INTERFACE_ACTIVE = !Config.BLN_IS_INTERFACE_ACTIVE;
 		}
 
-		// If the outputs are pressed, enables / disables the graphs interface
-		if (!GameObject.Find ("CanvasOutputGraphs").GetComponent<Canvas> ().enabled && _blnIsGraphsActive) {
+		/// CONSOLE INTERFACE ///
+		// If the Ctrl + X keys are pressed, enables / disables the console interface
+		if (Input.GetKey (KeyCode.LeftControl) && Input.GetKeyDown (KeyCode.X) && (!Config.BLN_IS_INTERFACE_ACTIVE || GameObject.Find ("CanvasConsole").GetComponent<Canvas> ().enabled)) {
 
-			//Enables disables the camera blur
-			GameObject.Find("Camera_01").GetComponent<Blur>().enabled = !GameObject.Find("Camera_01").GetComponent<Blur>().enabled;
-			GameObject.Find("Camera_02").GetComponent<Blur>().enabled = !GameObject.Find("Camera_02").GetComponent<Blur>().enabled;
-			GameObject.Find("Camera_03").GetComponent<Blur>().enabled = !GameObject.Find("Camera_03").GetComponent<Blur>().enabled;
-			GameObject.Find("Camera_04").GetComponent<Blur>().enabled = !GameObject.Find("Camera_04").GetComponent<Blur>().enabled;
-
-			// Enables / Disables the canvas and all the configuration interface
-			GameObject.Find ("CanvasOutputGraphs").GetComponent<Canvas> ().enabled = !GameObject.Find ("CanvasOutputGraphs").GetComponent<Canvas> ().enabled;
+			// Enables / Disables the canvas and all the console interface
+			GameObject.Find ("CanvasConsole").GetComponent<Canvas> ().enabled = !GameObject.Find ("CanvasConsole").GetComponent<Canvas> ().enabled;
 
 			// Changes the menu active boolean
 			Config.BLN_IS_INTERFACE_ACTIVE = !Config.BLN_IS_INTERFACE_ACTIVE;
+
+			// Focuses on the input field
+			GameObject.Find ("commandLine").GetComponent<InputField>().Select();
+			GameObject.Find ("commandLine").GetComponent<InputField>().ActivateInputField();
 		}
 
+		/// CONSOLE MANAGEMENT ///
+		// If the enter key is pressed
+		if (Input.GetKeyDown (KeyCode.Return) && GameObject.Find ("CanvasConsole").GetComponent<Canvas> ().enabled) {
+
+			// Gets the input field text
+			string _strInput = GameObject.Find("commandLine").GetComponent<InputField>().text;
+
+			// Checks the text in the input field through the conditions
+			if (_strInput == "set time to morning") {
+				GameObject.Find ("SceneScripts").GetComponent<DayAndNightControl> ().currentTime = 0.24f;
+
+			} else if (_strInput == "set time to midday") {
+				GameObject.Find ("SceneScripts").GetComponent<DayAndNightControl> ().currentTime = 0.50f;
+
+			} else if (_strInput == "set time to evening") {
+				GameObject.Find ("SceneScripts").GetComponent<DayAndNightControl> ().currentTime = 0.75f;
+
+			} else if (_strInput == "set time to night") {
+				GameObject.Find ("SceneScripts").GetComponent<DayAndNightControl> ().currentTime = 0f;
+
+			} else if (_strInput == "GetCarControl") {
+				Config.BLN_CAR_CONTROL = !Config.BLN_CAR_CONTROL;
+
+			}
+
+			// Deletes the text in the input
+			GameObject.Find("commandLine").GetComponent<InputField>().text = "";
+
+			// Closes the console
+			GameObject.Find ("CanvasConsole").GetComponent<Canvas> ().enabled = !GameObject.Find ("CanvasConsole").GetComponent<Canvas> ().enabled;
+			Config.BLN_IS_INTERFACE_ACTIVE = !Config.BLN_IS_INTERFACE_ACTIVE;
+		}
+		
+		/// OUTPUT MANAGEMENT ///
 		// Updates the outputs
 		_fltOutputTimer += Time.deltaTime;
 
@@ -115,6 +147,35 @@ public class UserInterface : MonoBehaviour {
 			// Gets the averages
 			_fltCarsAverageLeft  = _fltCarsAverageLeft / _intAverageOutputsLeft.Length * 60;
 			_fltCarsAverageRight = _fltCarsAverageRight / _intAverageOutputsRight.Length * 60;
+
+			// Updates the left outputs average arrays
+			if (Config.LI_LEFT_OUTPUTS.Count < Config.INT_GRAPHS_NB_DATA) {
+
+				// Adds the new value
+				Config.LI_LEFT_OUTPUTS.Add (_fltCarsAverageLeft);
+			} else {
+
+				// Deletes the oldest value
+				Config.LI_LEFT_OUTPUTS.RemoveAt(0);
+
+				// Adds the new value
+				Config.LI_LEFT_OUTPUTS.Add (_fltCarsAverageLeft);
+			}
+
+			// Updates the right outputs average arrays
+			if (Config.LI_RIGHT_OUTPUTS.Count < Config.INT_GRAPHS_NB_DATA) {
+
+				// Adds the new value
+				Config.LI_RIGHT_OUTPUTS.Add (_fltCarsAverageRight);
+			} else {
+
+				// Deletes the oldest value
+				Config.LI_RIGHT_OUTPUTS.RemoveAt(0);
+
+				// Adds the new value
+				Config.LI_RIGHT_OUTPUTS.Add (_fltCarsAverageRight);
+			}
+				
 
 			// Updates the output text
 			_txtCarOutputLeft.text  = "<< Débit : " + _fltCarsAverageLeft + " /min";
@@ -264,10 +325,58 @@ public class UserInterface : MonoBehaviour {
 	}
 
 	/*
+	 * Function 	: UpdateGraphs()
+	 * Description  : Updates all the data lines in the left and right graphs
+	 */
+	public void UpdateGraphs () {
+
+		// Variables declaration
+		var _v3LeftGraphPositions = new Vector3[31];
+		var _v3RightGraphPositions = new Vector3[31];
+
+		for (int i = 0; i < _v3LeftGraphPositions.Length; i++) {
+			if (i < Config.LI_LEFT_OUTPUTS.Count)
+				_v3LeftGraphPositions [i] = new Vector3 ((i * 600 / 30) - 600, Config.LI_LEFT_OUTPUTS [i] * 2f - 300f, -1f);
+			else if(i > 0)
+				_v3LeftGraphPositions [i] = _v3LeftGraphPositions [i - 1];	
+		}
+
+		for (int i = 0; i < _v3RightGraphPositions.Length; i++) {
+			if (i < Config.LI_RIGHT_OUTPUTS.Count)
+				_v3RightGraphPositions [i] = new Vector3 ((-1 * (i * 600 / 30)) + 600, Config.LI_RIGHT_OUTPUTS [i] * 2f - 300f, -1f);
+			else if(i > 0)
+				_v3RightGraphPositions [i] = _v3RightGraphPositions [i - 1];	
+		}
+
+		GameObject.Find ("LeftData").GetComponent<LineRenderer> ().SetPositions (_v3LeftGraphPositions);
+		GameObject.Find ("RightData").GetComponent<LineRenderer> ().SetPositions (_v3RightGraphPositions);
+	}
+
+	/*
 	 * Function 	: ActivateGraphsInterface()
 	 * Description  : Activates the graphs interface
 	 */
-	public void ActivateGraphsInterface () {_blnIsGraphsActive = true;}
+	public void ActivateGraphsInterface () {
+
+		// Activates only for the two first cameras
+		if (GameObject.Find ("SceneScripts").GetComponent<CameraBehavior> ()._caCamera1.enabled || GameObject.Find ("SceneScripts").GetComponent<CameraBehavior> ()._caCamera2.enabled) {
+
+			// Sets the canvas to the current camera
+			if (GameObject.Find("SceneScripts").GetComponent<CameraBehavior>()._caCamera1.enabled)
+				GameObject.Find ("CanvasOutputGraphs").GetComponent<Canvas> ().worldCamera = GameObject.Find("Camera_01").GetComponent<Camera>();
+			else if (GameObject.Find("SceneScripts").GetComponent<CameraBehavior>()._caCamera2.enabled)
+				GameObject.Find ("CanvasOutputGraphs").GetComponent<Canvas> ().worldCamera = GameObject.Find("Camera_02").GetComponent<Camera>();
+
+			// Enables / Disables the canvas and all the configuration interface
+			GameObject.Find ("CanvasOutputGraphs").GetComponent<Canvas> ().enabled = !GameObject.Find ("CanvasOutputGraphs").GetComponent<Canvas> ().enabled;
+			GameObject.Find ("Graphs").GetComponent<LineRenderer> ().enabled = !GameObject.Find ("Graphs").GetComponent<LineRenderer> ().enabled;
+			GameObject.Find ("LeftData").GetComponent<LineRenderer> ().enabled = !GameObject.Find ("LeftData").GetComponent<LineRenderer> ().enabled;
+			GameObject.Find ("RightData").GetComponent<LineRenderer> ().enabled = !GameObject.Find ("RightData").GetComponent<LineRenderer> ().enabled;
+
+			// Changes the menu active boolean
+			Config.BLN_IS_INTERFACE_ACTIVE = !Config.BLN_IS_INTERFACE_ACTIVE;
+		}
+	}
 
 	/*
 	 * Function 	: ExitSimulation()

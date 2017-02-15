@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 /*
  * Class 	   : CameraBehavior
@@ -32,7 +33,7 @@ public class CameraBehavior : MonoBehaviour {
 	private float _fltCamera3DownLimit;
 
 	// Camera 4 variables
-	private CarBehavior _cbRandomCar;
+	public CarBehavior _cbRandomCar;
 
 	/*
 	 * Function 	: Start()
@@ -55,9 +56,6 @@ public class CameraBehavior : MonoBehaviour {
 		// Disables the cameras
 		DisableAllCameras();
 		_caCamera1.enabled = true;
-
-		// Adds force at the begginning
-		_caCamera1.GetComponent<Rigidbody>().AddForce(new Vector3(0, -12f, 12f), ForceMode.VelocityChange);
 	}
 
 	/*
@@ -65,10 +63,6 @@ public class CameraBehavior : MonoBehaviour {
 	 * Description  : Called every frame
 	 */
 	void Update () {
-
-		// Changes the first camera velocity at the beggining
-		if (_caCamera1.GetComponent<Rigidbody>().velocity != Vector3.zero)
-			_caCamera1.GetComponent<Rigidbody>().AddForce(new Vector3(0, 0.4f, -0.4f), ForceMode.VelocityChange);
 		
 		// Variables update
 		_fltCamera1LeftLimit  = Config.INT_ROAD_SIZE / 2 * -1; // Limit depends on the chosen size of the road
@@ -241,25 +235,62 @@ public class CameraBehavior : MonoBehaviour {
 	*/
 	void UpdateCamera4() {
 
-		// (DEBUG ONLY) Allows to stop the car on the road
-		if (Input.GetKey (KeyCode.UpArrow))
-			_cbRandomCar.transform.Rotate (Vector3.right);
-		if (Input.GetKey (KeyCode.DownArrow))
-			_cbRandomCar.transform.Rotate (Vector3.left);
-		if (Input.GetKey (KeyCode.LeftArrow))
-			_cbRandomCar.transform.Rotate (Vector3.down);
-		if (Input.GetKey (KeyCode.RightArrow))
-			_cbRandomCar.transform.Rotate (Vector3.up);
-		if (Input.GetKey (KeyCode.Q))
-			_cbRandomCar._fltCarSpeed += Config.FLT_DRIVER_ACCELERATION_SPEED;
-		if (Input.GetKeyDown (KeyCode.P))
-			_cbRandomCar.PROBLEM = !_cbRandomCar.PROBLEM;
-		if (Input.GetKeyDown (KeyCode.R))
-			_cbRandomCar = GetRandomCar ();
+		// (CHEAT) Allows to contol the car
+		if (Config.BLN_CAR_CONTROL) {
 
-		// Gets a random car if the current has been destroyed or if the left / right key is pressed
-		//if (_cbRandomCar == null || Input.GetKeyDown (KeyCode.LeftArrow) || Input.GetKeyDown (KeyCode.RightArrow))
-		//	_cbRandomCar = GetRandomCar ();
+			// Speed up the car
+			if (Input.GetKey (KeyCode.UpArrow))
+				_cbRandomCar._fltCarSpeed += Config.FLT_DRIVER_ACCELERATION_SPEED;
+
+			// Slows down the car
+			if (Input.GetKey (KeyCode.DownArrow))
+				_cbRandomCar._fltCarSpeed -= Config.FLT_DRIVER_ACCELERATION_SPEED;
+
+			// Turn left
+			if (Input.GetKey (KeyCode.LeftArrow))
+				_cbRandomCar.transform.Rotate (Vector3.down * 2);
+
+			// Turn right
+			if (Input.GetKey (KeyCode.RightArrow))
+				_cbRandomCar.transform.Rotate (Vector3.up * 2);
+
+			// Stop the car
+			if (Input.GetKeyDown (KeyCode.P))
+				_cbRandomCar._blnCarProblem = !_cbRandomCar._blnCarProblem;
+
+			// Get new car
+			if (Input.GetKeyDown (KeyCode.R)) {
+
+				// Deletes the car if it exists
+				if (_cbRandomCar != null) {
+
+					// Removes the car from the list
+					_cbRandomCar._rdCarRoad._liCars.Remove (_cbRandomCar._rdCarRoad._liCars.FirstOrDefault (a => a == _cbRandomCar));
+
+					// Destroys the current car
+					Destroy (_cbRandomCar.gameObject);
+				}
+					
+				// Gets new car
+				int _intTimer = 0;
+
+				do {
+					_cbRandomCar = GetRandomCar ();
+					_intTimer++;
+				} while (_cbRandomCar.gameObject.name != "Car_02(Clone)" && _intTimer < 20);
+
+				// Positioning the car
+				_cbRandomCar.transform.Translate (-3, 1, 0);
+
+				// Activates the rigidbody
+				_cbRandomCar.GetComponent<Rigidbody> ().isKinematic = false;
+			}
+		} else {
+
+			// Gets a random car if the current has been destroyed or if the left / right key is pressed
+			if (_cbRandomCar == null || Input.GetKeyDown (KeyCode.LeftArrow) || Input.GetKeyDown (KeyCode.RightArrow))
+				_cbRandomCar = GetRandomCar ();
+		}
 		
 		_caCamera4.transform.position = new Vector3(_cbRandomCar.transform.position.x, _cbRandomCar.transform.position.y + 0.05f, _cbRandomCar.transform.position.z);
 
