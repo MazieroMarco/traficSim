@@ -238,28 +238,31 @@ public class CameraBehavior : MonoBehaviour {
 		// (CHEAT) Allows to contol the car
 		if (Config.BLN_CAR_CONTROL) {
 
+			// Changes the camera FOV
+			_caCamera4.fieldOfView = 35;
+
 			// Speed up the car
 			if (Input.GetKey (KeyCode.UpArrow))
 				_cbRandomCar._fltCarSpeed += Config.FLT_DRIVER_ACCELERATION_SPEED;
 
 			// Slows down the car
-			if (Input.GetKey (KeyCode.DownArrow))
-				_cbRandomCar._fltCarSpeed -= Config.FLT_DRIVER_ACCELERATION_SPEED;
+			if (Input.GetKey (KeyCode.DownArrow) && _cbRandomCar._fltCarSpeed > 0)
+				_cbRandomCar._fltCarSpeed -= Config.FLT_DRIVER_ACCELERATION_SPEED * 8;
 
 			// Turn left
 			if (Input.GetKey (KeyCode.LeftArrow))
-				_cbRandomCar.transform.Rotate (Vector3.down * 2);
+				_cbRandomCar.transform.Rotate (Vector3.down * 3);
 
 			// Turn right
 			if (Input.GetKey (KeyCode.RightArrow))
-				_cbRandomCar.transform.Rotate (Vector3.up * 2);
+				_cbRandomCar.transform.Rotate (Vector3.up * 3);
 
 			// Stop the car
 			if (Input.GetKeyDown (KeyCode.P))
 				_cbRandomCar._blnCarProblem = !_cbRandomCar._blnCarProblem;
 
 			// Get new car
-			if (Input.GetKeyDown (KeyCode.R)) {
+			if (Input.GetKeyDown (KeyCode.R) || _cbRandomCar == null) {
 
 				// Deletes the car if it exists
 				if (_cbRandomCar != null) {
@@ -286,6 +289,9 @@ public class CameraBehavior : MonoBehaviour {
 				_cbRandomCar.GetComponent<Rigidbody> ().isKinematic = false;
 			}
 		} else {
+
+			// Changes the camera FOV
+			_caCamera4.fieldOfView = 15;
 
 			// Gets a random car if the current has been destroyed or if the left / right key is pressed
 			if (_cbRandomCar == null || Input.GetKeyDown (KeyCode.LeftArrow) || Input.GetKeyDown (KeyCode.RightArrow))

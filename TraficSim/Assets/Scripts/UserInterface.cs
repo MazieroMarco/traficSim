@@ -115,6 +115,21 @@ public class UserInterface : MonoBehaviour {
 			} else if (_strInput == "GetCarControl") {
 				Config.BLN_CAR_CONTROL = !Config.BLN_CAR_CONTROL;
 
+			} else if (_strInput == "set timescale to 1") {
+				UnityEngine.Time.timeScale = 1;
+
+			} else if (_strInput == "set timescale to 5") {
+				UnityEngine.Time.timeScale = 5;
+
+			} else if (_strInput == "set timescale to 8") {
+				UnityEngine.Time.timeScale = 8;
+
+			} else if (_strInput == "set timescale to 10") {
+				UnityEngine.Time.timeScale = 10;
+
+			} else if (_strInput == "ChangeGravityState") {
+				UnityEngine.Physics.gravity = UnityEngine.Physics.gravity == Vector3.zero ? new Vector3 (0, 9.81f, 0) : Vector3.zero;
+
 			}
 
 			// Deletes the text in the input
@@ -184,6 +199,10 @@ public class UserInterface : MonoBehaviour {
 			// Resets the timer
 			_fltOutputTimer = 0;
 		}
+
+		/// TIME OF DAY MANAGEMENT ///
+		// Updates the time of the day text
+		GameObject.Find("timeOfDay").GetComponent<Text>().text = Mathf.Floor((Config.FLT_TIME_OF_DAY * 24)).ToString("00") + ":" + (((Config.FLT_TIME_OF_DAY * 24) - Mathf.Floor(Config.FLT_TIME_OF_DAY * 24)) * 60).ToString("00");
 	}
 
 	/*
@@ -309,7 +328,7 @@ public class UserInterface : MonoBehaviour {
 
 	/*
 	 * Function 	: ChangeSpawnDensity()
-	 * Description  : Changesthe amount of car spawns
+	 * Description  : Changes the amount of car spawns
 	 */
 	public void ChangeSpawnDensity () {
 
@@ -325,6 +344,57 @@ public class UserInterface : MonoBehaviour {
 	}
 
 	/*
+	 * Function 	: ChangeBreakdownChance()
+	 * Description  : Changes the chances for a car of having a breakdown
+	 */
+	public void ChangeBreakdownChance () {
+
+		// Variables declaration
+		float _fltNewProblemValue = Mathf.Round(GameObject.Find("ProblemSlider").GetComponent<Slider>().value * 1000) / 1000;	// The current slider value
+		string _strProblemMenuValue = _fltNewProblemValue.ToString ();															// The value displayed next to the slider
+
+		// Updates the dropdown value
+		GameObject.Find("ProblemValue").GetComponent<Text>().text = _strProblemMenuValue + "%";
+
+		// Changes the roas number global
+		Config.FLT_BREAKDOWN_CHANCES = _fltNewProblemValue;
+	}
+
+	/*
+	 * Function 	: ChangeTruckSpeedLimit()
+	 * Description  : Changes the speed limit for the trucks
+	 */
+	public void ChangeTruckSpeedLimit () {
+
+		// Variables declaration
+		int _fltNewSpeedValue = Mathf.RoundToInt(GameObject.Find("TruckLimitSlider").GetComponent<Slider>().value);		// The current slider value
+		string _strSpeedMenuValue = _fltNewSpeedValue.ToString ();														// The value displayed next to the slider
+
+		// Updates the dropdown value
+		GameObject.Find("TruckLimitValue").GetComponent<Text>().text = _strSpeedMenuValue + " km/h";
+
+		// Changes the roas number global
+		Config.INT_SPEED_LIMIT_KMH_TRUCK = _fltNewSpeedValue;
+	}
+
+	/*
+	 * Function 	: ChangeTruckDensity()
+	 * Description  : Changes the trucks density
+	 */
+	public void ChangeTruckDensity () {
+
+		// Variables declaration
+		int _fltNewDensityValue = Mathf.RoundToInt(GameObject.Find("TruckSlider").GetComponent<Slider>().value);		// The current slider value
+		string _strDensityMenuValue = _fltNewDensityValue.ToString ();														// The value displayed next to the slider
+
+		// Updates the dropdown value
+		GameObject.Find("TruckValue").GetComponent<Text>().text = _strDensityMenuValue + "%";
+
+		// Changes the roas number global
+		Config.INT_TRUCK_DENSITY = _fltNewDensityValue;
+	}
+
+	/*
 	 * Function 	: UpdateGraphs()
 	 * Description  : Updates all the data lines in the left and right graphs
 	 */
@@ -334,20 +404,27 @@ public class UserInterface : MonoBehaviour {
 		var _v3LeftGraphPositions = new Vector3[31];
 		var _v3RightGraphPositions = new Vector3[31];
 
+		// Defines the values for the left graph
 		for (int i = 0; i < _v3LeftGraphPositions.Length; i++) {
+
+			// Sets the values
 			if (i < Config.LI_LEFT_OUTPUTS.Count)
 				_v3LeftGraphPositions [i] = new Vector3 ((i * 600 / 30) - 600, Config.LI_LEFT_OUTPUTS [i] * 2f - 300f, -1f);
 			else if(i > 0)
 				_v3LeftGraphPositions [i] = _v3LeftGraphPositions [i - 1];	
 		}
 
+		// Defines the values for the right graph
 		for (int i = 0; i < _v3RightGraphPositions.Length; i++) {
+
+			// Sets the values
 			if (i < Config.LI_RIGHT_OUTPUTS.Count)
 				_v3RightGraphPositions [i] = new Vector3 ((-1 * (i * 600 / 30)) + 600, Config.LI_RIGHT_OUTPUTS [i] * 2f - 300f, -1f);
 			else if(i > 0)
 				_v3RightGraphPositions [i] = _v3RightGraphPositions [i - 1];	
 		}
 
+		// Applies the values to the graphical view
 		GameObject.Find ("LeftData").GetComponent<LineRenderer> ().SetPositions (_v3LeftGraphPositions);
 		GameObject.Find ("RightData").GetComponent<LineRenderer> ().SetPositions (_v3RightGraphPositions);
 	}
@@ -376,6 +453,52 @@ public class UserInterface : MonoBehaviour {
 			// Changes the menu active boolean
 			Config.BLN_IS_INTERFACE_ACTIVE = !Config.BLN_IS_INTERFACE_ACTIVE;
 		}
+	}
+
+	/*
+	 * Function 	: SetTimeToMorning()
+	 * Description  : Sets the time to morning
+	 */
+	public void SetTimeToMorning () {GameObject.Find ("SceneScripts").GetComponent<DayAndNightControl> ().currentTime = 0.24f;}
+
+	/*
+	 * Function 	: SetTimeToMidday()
+	 * Description  : Sets the time to midday
+	 */
+	public void SetTimeToMidday () {GameObject.Find ("SceneScripts").GetComponent<DayAndNightControl> ().currentTime = 0.50f;}
+
+	/*
+	 * Function 	: SetTimeToEvening()
+	 * Description  : Sets the time to evening
+	 */
+	public void SetTimeToEvening () {GameObject.Find ("SceneScripts").GetComponent<DayAndNightControl> ().currentTime = 0.75f;}
+
+	/*
+	 * Function 	: SetTimeToNight()
+	 * Description  : Sets the time to night
+	 */
+	public void SetTimeToNight () {GameObject.Find ("SceneScripts").GetComponent<DayAndNightControl> ().currentTime = 0f;}
+
+	/*
+	 * Function 	: ChangeBiomeToMountain()
+	 * Description  : Changes the biome to the mountain
+	 */
+	public void ChangeBiomeToMountain () {
+		GameObject.Find ("MountainTerrain").GetComponent<Terrain> ().enabled = true;
+		GameObject.Find ("MountainTerrain").GetComponent<TerrainCollider> ().enabled = true;
+		GameObject.Find ("DesertTerrain").GetComponent<Terrain> ().enabled = false;
+		GameObject.Find ("DesertTerrain").GetComponent<TerrainCollider> ().enabled = false;
+	}
+
+	/*
+	 * Function 	: ChangeBiomeToDesert()
+	 * Description  : Changes the biome to the mountain
+	 */
+	public void ChangeBiomeToDesert () {
+		GameObject.Find ("MountainTerrain").GetComponent<Terrain> ().enabled = false;
+		GameObject.Find ("MountainTerrain").GetComponent<TerrainCollider> ().enabled = false;
+		GameObject.Find ("DesertTerrain").GetComponent<Terrain> ().enabled = true;
+		GameObject.Find ("DesertTerrain").GetComponent<TerrainCollider> ().enabled = true;
 	}
 
 	/*

@@ -87,6 +87,9 @@ public class CarBehavior : MonoBehaviour {
 
 		// Sets the initial speed
 		_fltCarInitialSpeed = _fltCarSpeed;
+
+		// Starts the breakdown check
+		InvokeRepeating("BreakdownCheck", 0f, 1f);
 	}
 	
 	/*
@@ -110,7 +113,7 @@ public class CarBehavior : MonoBehaviour {
 
 
 		// Updates the initial speed (in case of menu change), Limits the speed to 80 if the vehicle is a truck
-		if (this.tag == "Truck" && Config.INT_SPEED_LIMIT_KMH > 80) {
+		if (this.tag == "Truck" && Config.INT_SPEED_LIMIT_KMH > Config.INT_SPEED_LIMIT_KMH_TRUCK) {
 
 			// Updates the speed for the truck
 			_fltCarInitialSpeed = ((_fltRandomSpeed + Config.INT_SPEED_LIMIT_KMH_TRUCK) * 100 / 60 / 60);
@@ -169,6 +172,20 @@ public class CarBehavior : MonoBehaviour {
 
 			// Destroys the current car
 			Destroy(gameObject);
+		}
+	}
+
+	/*
+	 * Function 	: BreakdownCheck()
+	 * Description  : Calculates the chances of having a breakdown
+	 */
+	void BreakdownCheck () {
+
+		// Checks the chances
+		var rand = Random.Range (0f, 100f) ;
+
+		if (rand < Config.FLT_BREAKDOWN_CHANCES) {
+			_blnCarProblem = true;
 		}
 	}
 
@@ -384,6 +401,5 @@ public class CarBehavior : MonoBehaviour {
 
 		// Puts the car to its final Z location
 		transform.position = new Vector3(transform.position.x, transform.position.y, _fltEndZPos);
-
 	}
 }

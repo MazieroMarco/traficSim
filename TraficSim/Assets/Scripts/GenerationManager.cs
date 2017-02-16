@@ -40,7 +40,7 @@ public class GenerationManager : MonoBehaviour {
 		_fltGenerationTimer += Time.deltaTime;
 
 		// If the time passed, spawns new cars
-		if (_fltGenerationTimer > Config.FLT_CARS_DENSITY_SEC) {
+		if (_fltGenerationTimer >= Config.FLT_CARS_DENSITY_SEC) {
 
 			// Generates the cars
 			GenerateCars();
@@ -76,10 +76,10 @@ public class GenerationManager : MonoBehaviour {
 		int _intVehicleType  = 0;	// The type of the vehicle (Car, truck, ...)
 
 		// Gets the vehicle type
-		_intVehicleType = Random.Range(0, 10);
+		_intVehicleType = Random.Range(0, 100);
 
 		// Generates a car or a truck
-		if (_intVehicleType == 0) {
+		if (_intVehicleType < Config.INT_TRUCK_DENSITY) {
 
 			// Gets a random truck model
 			_intCarModel = Random.Range(1, 5);
