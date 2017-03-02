@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityStandardAssets.ImageEffects;
+using System.Linq;
+
 /*
  * Class 	   : UserInterface
  * Descirption : This is all the user configuration interface class
@@ -10,14 +12,19 @@ using UnityStandardAssets.ImageEffects;
 public class UserInterface : MonoBehaviour {
 
 	// Variables declaration
-	private float _fltOutputTimer;			// Timer for the output update
-	private Text _txtCarOutputLeft;			// The left output
-	private Text _txtCarOutputRight;		// The right output
-	private int[] _intAverageOutputsLeft;	// Array containing the average outputs
-	private int _intArrayCountLeft;			// The current place in the average output array
-	private int[] _intAverageOutputsRight;	// Array containing the average outputs
-	private int _intArrayCountRight;		// The current place in the average output array
-	private bool _blnIsGraphsActive;		// To show if the graphs interface is active
+	private int _intOutputRefreshTimer30min; // Incremented each time the output is calculated
+	private int _intOutputRefreshTimer5min;  // Incremented each time the output is calculated
+	private int _intOutputRefreshTimer30sec; // Incremented each time the output is calculated
+	private float _fltOutputTimer;			 // Timer for the output update
+	private Text _txtCarOutputLeft;			 // The left output
+	private Text _txtCarOutputRight;		 // The right output
+	private Text _txtMinMaxLeft;			 // The left min / max values
+	private Text _txtMinMaxRight;			 // The right min / max values
+	private int[] _intAverageOutputsLeft;	 // Array containing the average outputs
+	private int _intArrayCountLeft;			 // The current place in the average output array
+	private int[] _intAverageOutputsRight;	 // Array containing the average outputs
+	private int _intArrayCountRight;		 // The current place in the average output array
+	private bool _blnIsGraphsActive;		 // To show if the graphs interface is active
 
 	/*
 	 * Function 	: Start()
@@ -28,9 +35,16 @@ public class UserInterface : MonoBehaviour {
 		// Initializes the timers
 		_fltOutputTimer = 0;
 
+		// Initializes the refresh timer
+		_intOutputRefreshTimer30min = 0;
+		_intOutputRefreshTimer5min = 0;
+		_intOutputRefreshTimer30sec = 0;
+
 		// Initializes the outputs text
 		_txtCarOutputLeft 		= GameObject.Find("carOutputLeft").GetComponent<Text>();
 		_txtCarOutputRight 		= GameObject.Find("carOutputRight").GetComponent<Text>();
+		_txtMinMaxLeft			= GameObject.Find("leftMinMaxValues").GetComponent<Text>();
+		_txtMinMaxRight			= GameObject.Find("rightMinMaxValues").GetComponent<Text>();
 		_txtCarOutputLeft.text  = "<< Débit : 0 /min";
 		_txtCarOutputRight.text = ">> Débit : 0 /min";
 
@@ -47,7 +61,7 @@ public class UserInterface : MonoBehaviour {
 		// Initializes the values for the left array
 		for (int i = 0; i < _intAverageOutputsRight.Length; i++)
 			_intAverageOutputsRight [i] = 0;
-		
+
 		// Initializes the update average every second
 		InvokeRepeating("UpdateAverageOutputs", 0, 1f);
 		InvokeRepeating("UpdateGraphs", 0, 1f);
@@ -97,7 +111,7 @@ public class UserInterface : MonoBehaviour {
 		if (Input.GetKeyDown (KeyCode.Return) && GameObject.Find ("CanvasConsole").GetComponent<Canvas> ().enabled) {
 
 			// Gets the input field text
-			string _strInput = GameObject.Find("commandLine").GetComponent<InputField>().text;
+			string _strInput = GameObject.Find("commandLine").GetComponent<InputField>().text.ToLower();
 
 			// Checks the text in the input field through the conditions
 			if (_strInput == "set time to morning") {
@@ -112,8 +126,11 @@ public class UserInterface : MonoBehaviour {
 			} else if (_strInput == "set time to night") {
 				GameObject.Find ("SceneScripts").GetComponent<DayAndNightControl> ().currentTime = 0f;
 
-			} else if (_strInput == "GetCarControl") {
-				Config.BLN_CAR_CONTROL = !Config.BLN_CAR_CONTROL;
+			} else if (_strInput == "enablecarcontrol") {
+				Config.BLN_CAR_CONTROL = true;
+
+			} else if (_strInput == "disablecarcontrol") {
+				Config.BLN_CAR_CONTROL = false;
 
 			} else if (_strInput == "set timescale to 1") {
 				UnityEngine.Time.timeScale = 1;
@@ -127,9 +144,21 @@ public class UserInterface : MonoBehaviour {
 			} else if (_strInput == "set timescale to 10") {
 				UnityEngine.Time.timeScale = 10;
 
-			} else if (_strInput == "ChangeGravityState") {
-				UnityEngine.Physics.gravity = UnityEngine.Physics.gravity == Vector3.zero ? new Vector3 (0, 9.81f, 0) : Vector3.zero;
+			} else if (_strInput == "changegravitystate") {
+				UnityEngine.Physics.gravity = UnityEngine.Physics.gravity == Vector3.zero ? new Vector3 (0, -9.81f, 0) : Vector3.zero;
 
+			} else if (_strInput == "enablefreecamera") {
+				Config.BLN_FREE_CAMERA = true;
+
+				// Sets camera position and rotation
+				GameObject.Find("Camera_03").GetComponent<Camera>().transform.position = new Vector3(0f, 2f, 0f);
+				GameObject.Find("Camera_03").GetComponent<Camera>().transform.rotation = Quaternion.Euler(0f, 0f, 0f);
+			} else if (_strInput == "disablefreecamera") {
+				Config.BLN_FREE_CAMERA = false;
+
+				// Resets camera position and rotation
+				GameObject.Find("Camera_03").GetComponent<Camera>().transform.position = new Vector3(1.5f, 0.25f, -1.7f);
+				GameObject.Find("Camera_03").GetComponent<Camera>().transform.rotation = Quaternion.Euler(6.378f, -48.112f, 0f);
 			}
 
 			// Deletes the text in the input
@@ -196,6 +225,29 @@ public class UserInterface : MonoBehaviour {
 			_txtCarOutputLeft.text  = "<< Débit : " + _fltCarsAverageLeft + " /min";
 			_txtCarOutputRight.text = ">> Débit : " + _fltCarsAverageRight + " /min";
 
+			// Checks the max / min values
+			Config.INT_OUTPUT_LEFT_MAX[0]  = Config.INT_OUTPUT_LEFT_MAX[0] < Mathf.RoundToInt(_fltCarsAverageLeft) ? Mathf.RoundToInt(_fltCarsAverageLeft) : Config.INT_OUTPUT_LEFT_MAX[0];
+			Config.INT_OUTPUT_LEFT_MIN[0]  = Config.INT_OUTPUT_LEFT_MIN[0] > Mathf.RoundToInt(_fltCarsAverageLeft) ? Mathf.RoundToInt(_fltCarsAverageLeft) : Config.INT_OUTPUT_LEFT_MIN[0];
+			Config.INT_OUTPUT_RIGHT_MAX[0] = Config.INT_OUTPUT_RIGHT_MAX[0] < Mathf.RoundToInt(_fltCarsAverageRight) ? Mathf.RoundToInt(_fltCarsAverageRight) : Config.INT_OUTPUT_RIGHT_MAX[0];
+			Config.INT_OUTPUT_RIGHT_MIN[0] = Config.INT_OUTPUT_RIGHT_MIN[0] > Mathf.RoundToInt(_fltCarsAverageRight) ? Mathf.RoundToInt(_fltCarsAverageRight) : Config.INT_OUTPUT_RIGHT_MIN[0];
+
+			Config.INT_OUTPUT_LEFT_MAX[1]  = Config.INT_OUTPUT_LEFT_MAX[1] < Mathf.RoundToInt(_fltCarsAverageLeft) ? Mathf.RoundToInt(_fltCarsAverageLeft) : Config.INT_OUTPUT_LEFT_MAX[1];
+			Config.INT_OUTPUT_LEFT_MIN[1]  = Config.INT_OUTPUT_LEFT_MIN[1] > Mathf.RoundToInt(_fltCarsAverageLeft) ? Mathf.RoundToInt(_fltCarsAverageLeft) : Config.INT_OUTPUT_LEFT_MIN[1];
+			Config.INT_OUTPUT_RIGHT_MAX[1] = Config.INT_OUTPUT_RIGHT_MAX[1] < Mathf.RoundToInt(_fltCarsAverageRight) ? Mathf.RoundToInt(_fltCarsAverageRight) : Config.INT_OUTPUT_RIGHT_MAX[1];
+			Config.INT_OUTPUT_RIGHT_MIN[1] = Config.INT_OUTPUT_RIGHT_MIN[1] > Mathf.RoundToInt(_fltCarsAverageRight) ? Mathf.RoundToInt(_fltCarsAverageRight) : Config.INT_OUTPUT_RIGHT_MIN[1];
+
+			Config.INT_OUTPUT_LEFT_MAX[2]  = Config.INT_OUTPUT_LEFT_MAX[2] < Mathf.RoundToInt(_fltCarsAverageLeft) ? Mathf.RoundToInt(_fltCarsAverageLeft) : Config.INT_OUTPUT_LEFT_MAX[2];
+			Config.INT_OUTPUT_LEFT_MIN[2]  = Config.INT_OUTPUT_LEFT_MIN[2] > Mathf.RoundToInt(_fltCarsAverageLeft) ? Mathf.RoundToInt(_fltCarsAverageLeft) : Config.INT_OUTPUT_LEFT_MIN[2];
+			Config.INT_OUTPUT_RIGHT_MAX[2] = Config.INT_OUTPUT_RIGHT_MAX[2] < Mathf.RoundToInt(_fltCarsAverageRight) ? Mathf.RoundToInt(_fltCarsAverageRight) : Config.INT_OUTPUT_RIGHT_MAX[2];
+			Config.INT_OUTPUT_RIGHT_MIN[2] = Config.INT_OUTPUT_RIGHT_MIN[2] > Mathf.RoundToInt(_fltCarsAverageRight) ? Mathf.RoundToInt(_fltCarsAverageRight) : Config.INT_OUTPUT_RIGHT_MIN[2];
+
+			// Updates the min / max values
+			_txtMinMaxLeft.text  = Config.INT_OUTPUT_LEFT_MIN[0] + "    |    " + Config.INT_OUTPUT_LEFT_MIN[1] + "    |    " + Config.INT_OUTPUT_LEFT_MIN[2] + "\n" +
+								   Config.INT_OUTPUT_LEFT_MAX[0] + "    |    " + Config.INT_OUTPUT_LEFT_MAX[1] + "    |    " + Config.INT_OUTPUT_LEFT_MAX[2];
+			
+			_txtMinMaxRight.text  = Config.INT_OUTPUT_RIGHT_MIN[0] + "    |    " + Config.INT_OUTPUT_RIGHT_MIN[1] + "    |    " + Config.INT_OUTPUT_RIGHT_MIN[2] + "\n" +
+									Config.INT_OUTPUT_RIGHT_MAX[0] + "    |    " + Config.INT_OUTPUT_RIGHT_MAX[1] + "    |    " + Config.INT_OUTPUT_RIGHT_MAX[2];
+
 			// Resets the timer
 			_fltOutputTimer = 0;
 		}
@@ -210,6 +262,7 @@ public class UserInterface : MonoBehaviour {
 	 * Description  : Updates the average output. Places the amount of cars that passed during one second in the output array
 	 */
 	void UpdateAverageOutputs () {
+
 		/// UPDATES THE LEFT OUTPUT
 		// Puts the value in the array
 		_intAverageOutputsLeft[_intArrayCountLeft] = Config.INT_CARS_OUTPUT_LEFT;
@@ -237,6 +290,98 @@ public class UserInterface : MonoBehaviour {
 		// Resets the array count if max value
 		if (_intArrayCountRight == _intAverageOutputsRight.Length)
 			_intArrayCountRight = 0;
+
+		/// INCREMENTS THE MIN / MAX TIMERS AND UPDATES THE MIN / MAX VALUES
+		_intOutputRefreshTimer30min++;
+		_intOutputRefreshTimer5min++;
+		_intOutputRefreshTimer30sec++;
+
+		// If 30 seconds passed
+		if (_intOutputRefreshTimer30sec >= 30) {
+
+			// Gets average number of cars that passed during one second
+			float _fltCarsAverageLeft  = 0;
+			float _fltCarsAverageRight = 0;
+
+			foreach (int _nbCars in _intAverageOutputsLeft) {
+				_fltCarsAverageLeft += _nbCars;
+			}
+
+			foreach (int _nbCars in _intAverageOutputsRight) {
+				_fltCarsAverageRight += _nbCars;
+			}
+
+			// Gets the averages
+			_fltCarsAverageLeft  = _fltCarsAverageLeft / _intAverageOutputsLeft.Length * 60;
+			_fltCarsAverageRight = _fltCarsAverageRight / _intAverageOutputsRight.Length * 60;
+
+			// Updates the 30 seconds values
+			Config.INT_OUTPUT_LEFT_MAX[0] = Mathf.RoundToInt(_fltCarsAverageLeft);
+			Config.INT_OUTPUT_LEFT_MIN[0] = Mathf.RoundToInt(_fltCarsAverageLeft);
+			Config.INT_OUTPUT_RIGHT_MAX[0] = Mathf.RoundToInt(_fltCarsAverageRight);
+			Config.INT_OUTPUT_RIGHT_MIN[0] = Mathf.RoundToInt(_fltCarsAverageRight);
+
+			// Resets the timer
+			_intOutputRefreshTimer30sec = 0;
+		}
+
+		// If 5 minutes passed
+		if (_intOutputRefreshTimer30sec >= 30) {
+
+			// Gets average number of cars that passed during one second
+			float _fltCarsAverageLeft  = 0;
+			float _fltCarsAverageRight = 0;
+
+			foreach (int _nbCars in _intAverageOutputsLeft) {
+				_fltCarsAverageLeft += _nbCars;
+			}
+
+			foreach (int _nbCars in _intAverageOutputsRight) {
+				_fltCarsAverageRight += _nbCars;
+			}
+
+			// Gets the averages
+			_fltCarsAverageLeft  = _fltCarsAverageLeft / _intAverageOutputsLeft.Length * 60;
+			_fltCarsAverageRight = _fltCarsAverageRight / _intAverageOutputsRight.Length * 60;
+
+			// Updates the 30 seconds values
+			Config.INT_OUTPUT_LEFT_MAX[1] = Mathf.RoundToInt(_fltCarsAverageLeft);
+			Config.INT_OUTPUT_LEFT_MIN[1] = Mathf.RoundToInt(_fltCarsAverageLeft);
+			Config.INT_OUTPUT_RIGHT_MAX[1] = Mathf.RoundToInt(_fltCarsAverageRight);
+			Config.INT_OUTPUT_RIGHT_MIN[1] = Mathf.RoundToInt(_fltCarsAverageRight);
+
+			// Resets the timer
+			_intOutputRefreshTimer5min = 0;
+		}
+
+		// If 30 minutes passed
+		if (_intOutputRefreshTimer30sec >= 30) {
+
+			// Gets average number of cars that passed during one second
+			float _fltCarsAverageLeft  = 0;
+			float _fltCarsAverageRight = 0;
+
+			foreach (int _nbCars in _intAverageOutputsLeft) {
+				_fltCarsAverageLeft += _nbCars;
+			}
+
+			foreach (int _nbCars in _intAverageOutputsRight) {
+				_fltCarsAverageRight += _nbCars;
+			}
+
+			// Gets the averages
+			_fltCarsAverageLeft  = _fltCarsAverageLeft / _intAverageOutputsLeft.Length * 60;
+			_fltCarsAverageRight = _fltCarsAverageRight / _intAverageOutputsRight.Length * 60;
+
+			// Updates the 30 seconds values
+			Config.INT_OUTPUT_LEFT_MAX[2] = Mathf.RoundToInt(_fltCarsAverageLeft);
+			Config.INT_OUTPUT_LEFT_MIN[2] = Mathf.RoundToInt(_fltCarsAverageLeft);
+			Config.INT_OUTPUT_RIGHT_MAX[2] = Mathf.RoundToInt(_fltCarsAverageRight);
+			Config.INT_OUTPUT_RIGHT_MIN[2] = Mathf.RoundToInt(_fltCarsAverageRight);
+
+			// Resets the timer
+			_intOutputRefreshTimer30min = 0;
+		}
 	}
 
 	/*
@@ -252,7 +397,7 @@ public class UserInterface : MonoBehaviour {
 		// Updates the dropdown value
 		GameObject.Find("NbRoadsValue").GetComponent<Text>().text = _strNbRoadsMenuValue;
 
-		// Changes the roas number global
+		// Changes the roads number global
 		Config.INT_NB_ROADS = _intNewRoadsNumber;
 
 		// Number of roads to delete
@@ -287,7 +432,7 @@ public class UserInterface : MonoBehaviour {
 		// Updates the dropdown value
 		GameObject.Find("RoadSizeValue").GetComponent<Text>().text = _strRoadsSizeMenuValue + "m";
 
-		// Changes the roas number global
+		// Changes value
 		Config.INT_ROAD_SIZE = _intNewRoadSize / 10;
 
 		// Number of roads to delete
@@ -322,7 +467,7 @@ public class UserInterface : MonoBehaviour {
 		// Updates the dropdown value
 		GameObject.Find("SpeedLimitValue").GetComponent<Text>().text = _strSpeedLimitMenuValue + " km/h";
 
-		// Changes the roas number global
+		// Changes value
 		Config.INT_SPEED_LIMIT_KMH = _intNewSpeedLimit;
 	}
 
@@ -333,13 +478,13 @@ public class UserInterface : MonoBehaviour {
 	public void ChangeSpawnDensity () {
 
 		// Variables declaration
-		float _fltNewSpawnDensity = Mathf.Round(GameObject.Find("TraficDensitySlider").GetComponent<Slider>().value * 100) / 100;	// The current slider value
+		float _fltNewSpawnDensity = Mathf.Round(GameObject.Find("TraficDensitySlider").GetComponent<Slider>().value * 1000) / 1000;	// The current slider value
 		string _strSpawnDensityMenuValue = _fltNewSpawnDensity.ToString ();															// The value displayed next to the slider
 
 		// Updates the dropdown value
 		GameObject.Find("TraficDensityValue").GetComponent<Text>().text = _strSpawnDensityMenuValue + " s";
 
-		// Changes the roas number global
+		// Changes value
 		Config.FLT_CARS_DENSITY_SEC = _fltNewSpawnDensity;
 	}
 
@@ -356,7 +501,7 @@ public class UserInterface : MonoBehaviour {
 		// Updates the dropdown value
 		GameObject.Find("ProblemValue").GetComponent<Text>().text = _strProblemMenuValue + "%";
 
-		// Changes the roas number global
+		// Changes value
 		Config.FLT_BREAKDOWN_CHANCES = _fltNewProblemValue;
 	}
 
@@ -373,7 +518,7 @@ public class UserInterface : MonoBehaviour {
 		// Updates the dropdown value
 		GameObject.Find("TruckLimitValue").GetComponent<Text>().text = _strSpeedMenuValue + " km/h";
 
-		// Changes the roas number global
+		// Changes value
 		Config.INT_SPEED_LIMIT_KMH_TRUCK = _fltNewSpeedValue;
 	}
 
@@ -390,8 +535,26 @@ public class UserInterface : MonoBehaviour {
 		// Updates the dropdown value
 		GameObject.Find("TruckValue").GetComponent<Text>().text = _strDensityMenuValue + "%";
 
-		// Changes the roas number global
+		// Changes value
 		Config.INT_TRUCK_DENSITY = _fltNewDensityValue;
+	}
+
+	/*
+	 * Function 	: ChangeWeather()
+	 * Description  : Changes the weather
+	 */
+	public void ChangeWeather () {
+
+		// Variables declaration
+		int _intNewWeatherValue = Mathf.RoundToInt(GameObject.Find("WeatherSlider").GetComponent<Slider>().value) - 1;		// The current slider value
+
+		// Changes value and weather
+		GameObject.Find("SceneScripts").GetComponent<WeatherManager>().ChangeWeather(_intNewWeatherValue);
+
+		// Updates the weather value and icon
+		WeatherManager _wmGameWeather = GameObject.Find("SceneScripts").GetComponent<WeatherManager>();
+		GameObject.Find("WeatherValue").GetComponent<Text>().text = _wmGameWeather._strWeatherName;
+		GameObject.Find("WeatherIcon").GetComponent<Image>().material = _wmGameWeather._matWeatherIcon;
 	}
 
 	/*
@@ -453,6 +616,19 @@ public class UserInterface : MonoBehaviour {
 			// Changes the menu active boolean
 			Config.BLN_IS_INTERFACE_ACTIVE = !Config.BLN_IS_INTERFACE_ACTIVE;
 		}
+	}
+
+	/*
+	 * Function 	: ShowMinMaxInterface()
+	 * Description  : Activates the min / max values interface
+	 */
+	public void ShowMinMaxInterface () {
+
+		// Changes the display state of the canvas
+		GameObject.Find ("CanvasDetails").GetComponent<Canvas> ().enabled = !GameObject.Find ("CanvasDetails").GetComponent<Canvas> ().enabled;
+
+		// Rotates the button
+		GameObject.Find("DetailsIcon").GetComponent<RectTransform>().transform.Rotate(0, 0, 180);
 	}
 
 	/*

@@ -14,7 +14,12 @@ public class CameraBehavior : MonoBehaviour {
 	public Camera _caCamera2;
 	public Camera _caCamera3;
 	public Camera _caCamera4;
-	private bool FogBool = false;
+	public Camera CA_ACTIVE_CAMERA  {
+		get{return _caActiveCamera ?? _caCamera1;}
+		set{ _caActiveCamera = value;}
+	}
+		
+	private Camera _caActiveCamera;
 
 	// Camera 1 variables
 	private float _fltCamera1LeftLimit;
@@ -56,6 +61,7 @@ public class CameraBehavior : MonoBehaviour {
 		// Disables the cameras
 		DisableAllCameras();
 		_caCamera1.enabled = true;
+		_caActiveCamera = _caCamera1;
 	}
 
 	/*
@@ -103,21 +109,25 @@ public class CameraBehavior : MonoBehaviour {
 				// Changes
 				DisableAllCameras();
 				_caCamera2.enabled = true;
+				_caActiveCamera = _caCamera2;
 			} else if (_caCamera2.enabled == true) {
 
 				// Changes
 				DisableAllCameras();
 				_caCamera3.enabled = true;
+				_caActiveCamera = _caCamera3;
 			} else if (_caCamera3.enabled == true) {
 
 				// Changes
 				DisableAllCameras();
 				_caCamera4.enabled = true;
+				_caActiveCamera = _caCamera4;
 			} else {
 
 				// Changes
 				DisableAllCameras();
 				_caCamera1.enabled = true;
+				_caActiveCamera = _caCamera1;
 			}
 		}
 	}
@@ -127,7 +137,7 @@ public class CameraBehavior : MonoBehaviour {
 	 * Description  : Updates the position of the first camera
 	 */
 	void UpdateCamera1 () {
-
+		
 		/// Mouse camera management ///
 		// Detects the up and down mouse wheel movment
 		if ((_caCamera1.transform.position.y < _fltCamera1DownLimit && Input.GetAxis ("Mouse ScrollWheel") < 0) || (_caCamera1.transform.position.y > _fltCamera1UpLimit && Input.GetAxis ("Mouse ScrollWheel") > 0)) {
@@ -216,16 +226,51 @@ public class CameraBehavior : MonoBehaviour {
 	*/
 	void UpdateCamera3() {
 
-		/// Mouse camera management ///
-		// Detects the up and down mouse wheel movment
-		if (_caCamera3.transform.position.x < _fltCamera3DownLimit - 2 && Input.GetAxis ("Mouse ScrollWheel") > 0) {
+		// (CHEAT) Free camera or regular one
+		if (!Config.BLN_FREE_CAMERA) {
 
-			// Moves the camera
-			_caCamera3.transform.Translate(Vector3.right * Input.GetAxis("Mouse ScrollWheel") * 4 * Time.deltaTime, Space.World);
-		} else if (_caCamera3.transform.position.x > _fltCamera3UpLimit + 3 && Input.GetAxis ("Mouse ScrollWheel") < 0) {
+			/// Mouse camera management ///
+			// Detects the up and down mouse wheel movment
+			if (_caCamera3.transform.position.x < _fltCamera3DownLimit - 2 && Input.GetAxis ("Mouse ScrollWheel") > 0) {
 
-			// Moves the camera
-			_caCamera3.transform.Translate(Vector3.right * Input.GetAxis("Mouse ScrollWheel") * 4 * Time.deltaTime, Space.World);
+				// Moves the camera
+				_caCamera3.transform.Translate (Vector3.right * Input.GetAxis ("Mouse ScrollWheel") * 4 * Time.deltaTime, Space.World);
+			} else if (_caCamera3.transform.position.x > _fltCamera3UpLimit + 3 && Input.GetAxis ("Mouse ScrollWheel") < 0) {
+
+				// Moves the camera
+				_caCamera3.transform.Translate (Vector3.right * Input.GetAxis ("Mouse ScrollWheel") * 4 * Time.deltaTime, Space.World);
+			}
+		} else {
+
+
+			/// FREE CAMERA CHEAT ///
+			// Inputs management
+			if (Input.GetKey (KeyCode.UpArrow)) {
+
+				// Moves the camera
+				_caCamera3.transform.Translate(Vector3.forward * 7 * Time.deltaTime);
+			}
+
+			if (Input.GetKey (KeyCode.DownArrow)) {
+
+				// Moves the camera
+				_caCamera3.transform.Translate(Vector3.back * 7 * Time.deltaTime);
+			}
+
+			if (Input.GetKey (KeyCode.LeftArrow)) {
+
+				// Moves the camera
+				_caCamera3.transform.Translate(Vector3.left * 7 * Time.deltaTime);
+			}
+
+			if (Input.GetKey (KeyCode.RightArrow)) {
+
+				// Moves the camera
+				_caCamera3.transform.Translate(Vector3.right * 7 * Time.deltaTime);
+			}
+
+			// Mouse movement
+			_caCamera3.transform.rotation=Quaternion.Euler(_caCamera3.transform.rotation.eulerAngles.x - Input.GetAxis("Mouse Y") * 10 , _caCamera3.transform.rotation.eulerAngles.y + Input.GetAxis("Mouse X") * 10, 0);
 		}
 	}
 
@@ -238,8 +283,33 @@ public class CameraBehavior : MonoBehaviour {
 		// (CHEAT) Allows to contol the car
 		if (Config.BLN_CAR_CONTROL) {
 
-			// Changes the camera FOV
-			_caCamera4.fieldOfView = 35;
+			// Get new car
+			if (Input.GetKeyDown (KeyCode.R) || _cbRandomCar == null) {
+
+				// Deletes the car if it exists
+				if (_cbRandomCar != null) {
+
+					// Removes the car from the list
+					_cbRandomCar._rdCarRoad._liCars.Remove (_cbRandomCar._rdCarRoad._liCars.FirstOrDefault (a => a == _cbRandomCar));
+
+					// Destroys the current car
+					Destroy (_cbRandomCar.gameObject);
+				}
+
+				// Gets new car
+				int _intTimer = 0;
+
+				do {
+					_cbRandomCar = GetRandomCar ();
+					_intTimer++;
+				} while (_cbRandomCar.gameObject.name != "Car_02(Clone)" && _intTimer < 20);
+
+				// Positioning the car
+				_cbRandomCar.transform.Translate (-3, 1, 0);
+
+				// Activates the rigidbody
+				_cbRandomCar.GetComponent<Rigidbody> ().isKinematic = false;
+			}
 
 			// Speed up the car
 			if (Input.GetKey (KeyCode.UpArrow))
@@ -261,37 +331,13 @@ public class CameraBehavior : MonoBehaviour {
 			if (Input.GetKeyDown (KeyCode.P))
 				_cbRandomCar._blnCarProblem = !_cbRandomCar._blnCarProblem;
 
-			// Get new car
-			if (Input.GetKeyDown (KeyCode.R) || _cbRandomCar == null) {
-
-				// Deletes the car if it exists
-				if (_cbRandomCar != null) {
-
-					// Removes the car from the list
-					_cbRandomCar._rdCarRoad._liCars.Remove (_cbRandomCar._rdCarRoad._liCars.FirstOrDefault (a => a == _cbRandomCar));
-
-					// Destroys the current car
-					Destroy (_cbRandomCar.gameObject);
-				}
-					
-				// Gets new car
-				int _intTimer = 0;
-
-				do {
-					_cbRandomCar = GetRandomCar ();
-					_intTimer++;
-				} while (_cbRandomCar.gameObject.name != "Car_02(Clone)" && _intTimer < 20);
-
-				// Positioning the car
-				_cbRandomCar.transform.Translate (-3, 1, 0);
-
-				// Activates the rigidbody
-				_cbRandomCar.GetComponent<Rigidbody> ().isKinematic = false;
-			}
+			// Changes the camera FOV
+			_caCamera4.fieldOfView = 45;
+			
 		} else {
 
 			// Changes the camera FOV
-			_caCamera4.fieldOfView = 15;
+			_caCamera4.fieldOfView = 45;
 
 			// Gets a random car if the current has been destroyed or if the left / right key is pressed
 			if (_cbRandomCar == null || Input.GetKeyDown (KeyCode.LeftArrow) || Input.GetKeyDown (KeyCode.RightArrow))

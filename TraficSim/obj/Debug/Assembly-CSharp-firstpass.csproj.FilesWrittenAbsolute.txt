@@ -19,3 +19,5 @@
 /Volumes/OSX/Cours/Pratique/Projet APPRO/Projet/TraficSim/Temp/bin/Debug/Unity.CecilTools.dll
 /Volumes/OSX/Cours/Pratique/Projet APPRO/Projet/TraficSim/Temp/bin/Debug/Mono.Cecil.Pdb.dll
 /Volumes/OSX/Cours/Pratique/Projet APPRO/Projet/TraficSim/Temp/bin/Debug/Mono.Cecil.Mdb.dll
+/Volumes/OSX/Cours/Pratique/Projet APPRO/Projet/TraficSim/Temp/bin/Debug/UnityEngine.Purchasing.dll
+/Volumes/OSX/Cours/Pratique/Projet APPRO/Projet/TraficSim/Temp/bin/Debug/UnityEngine.Advertisements.dll
