@@ -242,11 +242,11 @@ public class UserInterface : MonoBehaviour {
 			Config.INT_OUTPUT_RIGHT_MIN[2] = Config.INT_OUTPUT_RIGHT_MIN[2] > Mathf.RoundToInt(_fltCarsAverageRight) ? Mathf.RoundToInt(_fltCarsAverageRight) : Config.INT_OUTPUT_RIGHT_MIN[2];
 
 			// Updates the min / max values
-			_txtMinMaxLeft.text  = Config.INT_OUTPUT_LEFT_MIN[0] + "    |    " + Config.INT_OUTPUT_LEFT_MIN[1] + "    |    " + Config.INT_OUTPUT_LEFT_MIN[2] + "\n" +
-								   Config.INT_OUTPUT_LEFT_MAX[0] + "    |    " + Config.INT_OUTPUT_LEFT_MAX[1] + "    |    " + Config.INT_OUTPUT_LEFT_MAX[2];
+			_txtMinMaxLeft.text  = Config.INT_OUTPUT_LEFT_MIN[0].ToString("000") + "   |   " + Config.INT_OUTPUT_LEFT_MIN[1].ToString("000") + "   |   " + Config.INT_OUTPUT_LEFT_MIN[2].ToString("000") + "\n" +
+								   Config.INT_OUTPUT_LEFT_MAX[0].ToString("000") + "   |   " + Config.INT_OUTPUT_LEFT_MAX[1].ToString("000") + "   |   " + Config.INT_OUTPUT_LEFT_MAX[2].ToString("000");
 			
-			_txtMinMaxRight.text  = Config.INT_OUTPUT_RIGHT_MIN[0] + "    |    " + Config.INT_OUTPUT_RIGHT_MIN[1] + "    |    " + Config.INT_OUTPUT_RIGHT_MIN[2] + "\n" +
-									Config.INT_OUTPUT_RIGHT_MAX[0] + "    |    " + Config.INT_OUTPUT_RIGHT_MAX[1] + "    |    " + Config.INT_OUTPUT_RIGHT_MAX[2];
+			_txtMinMaxRight.text  = Config.INT_OUTPUT_RIGHT_MIN[0].ToString("000") + "   |   " + Config.INT_OUTPUT_RIGHT_MIN[1].ToString("000") + "   |   " + Config.INT_OUTPUT_RIGHT_MIN[2].ToString("000") + "\n" +
+								    Config.INT_OUTPUT_RIGHT_MAX[0].ToString("000") + "   |   " + Config.INT_OUTPUT_RIGHT_MAX[1].ToString("000") + "   |   " + Config.INT_OUTPUT_RIGHT_MAX[2].ToString("000");
 
 			// Resets the timer
 			_fltOutputTimer = 0;
@@ -326,7 +326,7 @@ public class UserInterface : MonoBehaviour {
 		}
 
 		// If 5 minutes passed
-		if (_intOutputRefreshTimer30sec >= 30) {
+		if (_intOutputRefreshTimer5min >= 300) {
 
 			// Gets average number of cars that passed during one second
 			float _fltCarsAverageLeft  = 0;
@@ -355,7 +355,7 @@ public class UserInterface : MonoBehaviour {
 		}
 
 		// If 30 minutes passed
-		if (_intOutputRefreshTimer30sec >= 30) {
+		if (_intOutputRefreshTimer30min >= 1800) {
 
 			// Gets average number of cars that passed during one second
 			float _fltCarsAverageLeft  = 0;
@@ -683,6 +683,7 @@ public class UserInterface : MonoBehaviour {
 	 */
 	public void ExitSimulation () {
 
+		// Exits
 		Application.Quit();
 	}
 }

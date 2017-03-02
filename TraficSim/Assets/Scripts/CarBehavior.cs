@@ -16,6 +16,7 @@ public class CarBehavior : MonoBehaviour {
 	public Road _rdCarRoad;								// The current car road
 	public bool _blnCarProblem = false;					// Used to stop the car on the road
 	public float _fltCarInitialSpeed;					// The initial speed before detections (used during the detections)
+	public bool _blnIsChangingLane = false;				// Used when changing lane to avoid collision with other cars
 
 	// Private variables declaration
 	private int _intRandomRoad;							// The random road index to generate the car
@@ -36,15 +37,15 @@ public class CarBehavior : MonoBehaviour {
 		if (this.tag == "Truck" && Config.INT_SPEED_LIMIT_KMH > 80) {
 
 			// Updates the speed for the truck
-			_fltCarSpeed = ((_fltRandomSpeed + Config.INT_SPEED_LIMIT_KMH_TRUCK) * 100 / 60 / 60);
+			_fltCarInitialSpeed = ((_fltRandomSpeed + Config.INT_SPEED_LIMIT_KMH_TRUCK) * 100 / 60 / 60);
 		} else {
 
 			// Updates the speed for the car
-			_fltCarSpeed = ((_fltRandomSpeed + Config.INT_SPEED_LIMIT_KMH) * 100 / 60 / 60);
+			_fltCarInitialSpeed = ((_fltRandomSpeed + Config.INT_SPEED_LIMIT_KMH) * 100 / 60 / 60);
 		}
 
 		// Sets the initial speed
-		_fltCarInitialSpeed = _fltCarSpeed;
+		_fltCarSpeed = _fltCarInitialSpeed;
 
 		// Random index list
 		List<int> _intIndexList = new List<int>();
@@ -85,7 +86,7 @@ public class CarBehavior : MonoBehaviour {
 			// Executes the raycast
 			if (Physics.Raycast ( _rRangeDetection, out _rhCarInRange, 3f)) {
 
-				if (_rhCarInRange.distance > 1f) {
+				if (_rhCarInRange.distance > 1.5f) {
 
 					// No car detected in 3m, spawn possible
 					_blnPossibleSpawn = true;
@@ -110,7 +111,7 @@ public class CarBehavior : MonoBehaviour {
 		} else {
 
 			// Places the car to the start point
-			transform.position = new Vector3 (transform.position.x + _v3CarDirection.x / 1.2f, transform.position.y, transform.position.z);
+			transform.position = new Vector3 (transform.position.x + _v3CarDirection.x / 1.3f, transform.position.y, transform.position.z);
 		}
 
 		// Adds the car to the road
@@ -128,7 +129,7 @@ public class CarBehavior : MonoBehaviour {
 	 * Description  : Called every frame
 	 */
 	void FixedUpdate () {
-
+		
 		// Stops the car if it has a problem
 		if (_blnCarProblem)
 			_fltCarSpeed -= Config.FLT_DRIVER_DECELERATION_SPEED;
@@ -137,7 +138,8 @@ public class CarBehavior : MonoBehaviour {
 		CarMoveForward();
 
 		// Checks for collisions
-		CarCollisionsCheck ();
+		if (!_blnIsChangingLane)
+			CarCollisionsCheck ();
 
 		// Check for destroy
 		CarDestroyOnLimit();
@@ -156,6 +158,17 @@ public class CarBehavior : MonoBehaviour {
 	}
 
 	/*
+	 * Function 	: OnTriggerEnter()
+	 * Description  : Is called each time the car collider collides with something.
+	 */
+	void OnTriggerEnter(Collider _coCollider)
+	{
+		// The car collided something, checks if it's a car or a truck and generates an accident
+		if (_coCollider.gameObject.tag == "Car" || _coCollider.gameObject.tag == "Truck")
+			CarAccident (_coCollider);
+	}
+
+	/*
 	 * Function 	: CarMoveForward()
 	 * Description  : Moves the car forward on the road lane
 	 */
@@ -166,10 +179,6 @@ public class CarBehavior : MonoBehaviour {
 
 			// Puts to 0
 			_fltCarSpeed = 0;
-
-			// Changes lane if the car is stopped
-			if (!_blnCarProblem && Random.Range(1, 50) == 2)
-				ChangeLane (Config.FLT_SECURITY_DIST_CHANGE_LANE);
 		}
 			
 
@@ -236,19 +245,18 @@ public class CarBehavior : MonoBehaviour {
 		// Casts the detection zone to find cars ahead. It returns trus if detection
 		if (Physics.Raycast (_rRangeDetection, out _rhCarInRange, Config.FLT_AHEAD_CAR_DETECTION_DIST)) {
 
+			// Checks if the collision is a car
+			if (_rhCarInRange.transform.gameObject.GetComponent<CarBehavior>() == null) return;
+
 			////////////////////////////////////////////////////////////
 			/// Distance detections
 			////////////////////////////////////////////////////////////
-			if (_rhCarInRange.distance < 0.3f) { // Between 0 and 3 meters
+			if (_rhCarInRange.distance < 0.5f) { // Between 0 and 3 meters
 
 				// Slows down the car to avoid collision
 				_fltCarSpeed -= Config.FLT_DRIVER_DECELERATION_SPEED * 2;
-
-				// Tries to change lane if the front car is slower than the current car original speed
-				if (_rhCarInRange.transform.gameObject.GetComponent<CarBehavior> ()._fltCarSpeed < _fltCarInitialSpeed)
-					ChangeLane (Config.FLT_SECURITY_DIST_CHANGE_LANE);
 				
-			} else if (_rhCarInRange.distance > 0.3f && _rhCarInRange.distance < 0.6f) { // Between 3 and 6 meters
+			} else if (_rhCarInRange.distance > 0.5f && _rhCarInRange.distance < 0.8f) { // Between 3 and 6 meters
 
 				// Slows down the car to the detected car speed to avoid collision
 				if (_fltCarSpeed > _rhCarInRange.transform.gameObject.GetComponent<CarBehavior> ()._fltCarSpeed) {
@@ -257,18 +265,8 @@ public class CarBehavior : MonoBehaviour {
 					_fltCarSpeed -= Config.FLT_DRIVER_DECELERATION_SPEED;
 				}
 
-				// Tries to change lane if the front car is slower than the current car original speed
-				if (_rhCarInRange.transform.gameObject.GetComponent<CarBehavior> ()._fltCarSpeed < _fltCarInitialSpeed)
-					ChangeLane (Config.FLT_SECURITY_DIST_CHANGE_LANE);
-
-			} else if (_rhCarInRange.distance > 0.6f && _rhCarInRange.distance < 0.8f) { // Between 6 and 8 meters
-
-				// Tries to change lane if the front car is slower than the current car original speed
-				if (_rhCarInRange.transform.gameObject.GetComponent<CarBehavior> ()._fltCarSpeed < _fltCarInitialSpeed)
-					ChangeLane (Config.FLT_SECURITY_DIST_CHANGE_LANE);
-
-			} else if (_rhCarInRange.distance > 0.8f && _rhCarInRange.distance < 1f) { // Between 8 and 10 meters
-
+			} else if (_rhCarInRange.distance > 1f && _rhCarInRange.distance < 1.5f) { // Between 8 and 10 meters
+				
 				// Speeds up the car to reach the detected car speed
 				if (_fltCarSpeed < _rhCarInRange.transform.gameObject.GetComponent<CarBehavior> ()._fltCarSpeed) {
 
@@ -288,7 +286,10 @@ public class CarBehavior : MonoBehaviour {
 				// Already slows down the car
 				_fltCarSpeed -= Config.FLT_DRIVER_DECELERATION_SPEED;
 			}
-			//_fltCarSpeed -= (2f - _rhCarInRange.distance) / 25; //Mathf.(_rhCarInRange.distance,1.1);
+
+			// Checks to change the lane
+			if (_rhCarInRange.distance > 0.5f && _rhCarInRange.distance < 1.5f && _rhCarInRange.transform.gameObject.GetComponent<CarBehavior> ()._fltCarSpeed < _fltCarInitialSpeed)
+				ChangeLane (Config.FLT_SECURITY_DIST_CHANGE_LANE);
 
 		} else {
 
@@ -302,6 +303,25 @@ public class CarBehavior : MonoBehaviour {
 	}
 
 	/*
+	 * Function 	: CarAccident()
+	 * Description  : Called when a car collides with another. It creates an accident.
+	 */
+	void CarAccident (Collider _coVehicleCollided) {
+
+		// DEBUG
+		Debug.Log("ACCIDENT!");
+
+		// Stops the vehicle if the vehicle is not curently changing lane
+		_fltCarSpeed = 0;
+		_blnCarProblem = true;
+
+		// Places the smoke on the impact
+		if(_coVehicleCollided.gameObject.GetComponent<CarBehavior>()._blnCarProblem) return;
+		GameObject _goSmoke = GameObject.Instantiate(Resources.Load<GameObject>("accident_smoke"));
+		_goSmoke.transform.position = new Vector3(_coVehicleCollided.ClosestPointOnBounds(transform.position).x, transform.position.y, _coVehicleCollided.ClosestPointOnBounds(transform.position).z) ;
+	}
+
+	/*
 	 * Function 	: ChangeLane()
 	 * Description  : When called, the car will try to change his lane on the road.
 	 * 
@@ -310,11 +330,36 @@ public class CarBehavior : MonoBehaviour {
 	 */
 	bool ChangeLane (float _fltSecurityDistance) {
 
-		//Debug.Log (Mathf.Round(_rdCarRoad.GetSpawnOrigin ().z * 100000) / 100000+" - "+  Mathf.Round(transform.position.z * 100000) / 100000);
-
-		// If the car is already moving doesn't try to change lane again
-		if (_rdCarRoad.GetSpawnOrigin ().z != transform.position.z)
+		// If the car has an accident or breakdown, doesn't change
+		if (_blnCarProblem)
 			return false;
+
+		// Checks if another car is changing lane around
+		Collider[] _coHitColliders = Physics.OverlapSphere(transform.position, 1.5f);
+
+		for (int i = 0; i < _coHitColliders.Length; i++) {
+
+			// Checks if the collider is a car or a truck
+			if (_coHitColliders [i].gameObject.tag == "Car" || _coHitColliders [i].gameObject.tag == "Truck") {
+
+				// Checks if the collider is already changing lane or has an accident
+				if (_coHitColliders [i].gameObject.GetComponent<CarBehavior> ()._blnIsChangingLane)
+					return false;
+			}
+		}
+
+		// Checks if the car is far enough from the spawn point
+		if (_v3CarDirection == Vector3.left) {
+
+			// Left lane
+			if (transform.position.x + Config.FLT_SECURITY_DIST_CHANGE_LANE >= _rdCarRoad.GetSpawnOrigin().x)
+				return false;
+		} else {
+
+			// Right lane
+			if (transform.position.x - Config.FLT_SECURITY_DIST_CHANGE_LANE <= _rdCarRoad.GetSpawnOrigin().x)
+				return false;
+		}
 
 		// Variables declaration
 		bool _blnTurnPos = false;	// If true, it's possible to translate on the Z+ axis
@@ -327,7 +372,6 @@ public class CarBehavior : MonoBehaviour {
 		// Gets the index of the current car road
 		_intCurrentRoadIndex = _liRoads.FindIndex(a=> a._intRoadID==_rdCarRoad._intRoadID);
 
-		//Debug.Log (_intCurrentRoadIndex);
 		// Sets the possibilities booleans
 		if (_intCurrentRoadIndex + 1 < _liRoads.Count)
 			_blnTurnNeg = true;
@@ -335,54 +379,35 @@ public class CarBehavior : MonoBehaviour {
 		if (_intCurrentRoadIndex - 1 >= 0)
 			_blnTurnPos = true;
 
-		// Checks the Z- transltion possibility
+
+		// Checks to turn on Z-
 		if (_blnTurnNeg) {
 
-			// Gets the adjacent road Z axis value
-			float _fltAdjZ = _liRoads[_intCurrentRoadIndex + 1].GetSpawnOrigin().z;
+			// The road where to change
+			Road _rdRoadToChange = _liRoads [_intCurrentRoadIndex + 1];
 
-			// Initiates the raycast on Z-
-			float _fltRayXPos = _v3CarDirection == Vector3.left ? transform.position.x + _fltSecurityDistance - 3f : transform.position.x - _fltSecurityDistance + 3f; // The X position of the ray
-			RaycastHit _rhCarInRange;	// This is the car detected in the hit range
-			Ray _rRangeDetection = new Ray () {direction = Vector3.right, origin = new Vector3 (_fltRayXPos, transform.position.y, _fltAdjZ)};
-			Debug.DrawRay (new Vector3 (_fltRayXPos, transform.position.y, _fltAdjZ), Vector3.right*Config.FLT_SECURITY_DIST_CHANGE_LANE, Color.red, 1f);
-			// Executes the raycast
-			if (!(Physics.Raycast (_rRangeDetection, out _rhCarInRange, _fltSecurityDistance))) {
+			// Checks if there are cars on the adjacent road
+			if (!(_rdRoadToChange._liCars.Where (a =>IsBetweenLimits(transform.position.x, a.transform.position.x))).Any()) {
 
 				// Initiates the lane change
-				StartCoroutine (ChangeLaneTransition (false, _fltAdjZ));
-
-				// Changes the car in the car road list
-				_rdCarRoad._liCars.Remove(this);
-				_liRoads [_intCurrentRoadIndex + 1]._liCars.Add (this);
-				_rdCarRoad = _liRoads [_intCurrentRoadIndex + 1];
+				StartCoroutine (ChangeLaneTransition (false, _rdRoadToChange));
 
 				// Returns true
 				return true;
 			}
 		}
 
-		// Checks the Z+ transltion possibility
+		// Checks to turn on Z+
 		if (_blnTurnPos) {
 
-			// Gets the adjacent road Z axis value
-			float _fltAdjZ = _liRoads[_intCurrentRoadIndex - 1].GetSpawnOrigin().z;
+			// The road where to change
+			Road _rdRoadToChange = _liRoads [_intCurrentRoadIndex - 1];
 
-			// Initiates the raycast on Z-
-			float _fltRayXPos = _v3CarDirection == Vector3.left ? transform.position.x + _fltSecurityDistance - 3f: transform.position.x - _fltSecurityDistance + 3f; // The X position of the ray
-			RaycastHit _rhCarInRange;	// This is the car detected in the hit range
-			Ray _rRangeDetection = new Ray () {direction = Vector3.right, origin = new Vector3 (_fltRayXPos, transform.position.y, _fltAdjZ)};
-			Debug.DrawRay (new Vector3 (_fltRayXPos, transform.position.y, _fltAdjZ), Vector3.right*Config.FLT_SECURITY_DIST_CHANGE_LANE, Color.blue, 1f);
-			// Executes the raycast
-			if (!(Physics.Raycast (_rRangeDetection, out _rhCarInRange, _fltSecurityDistance))) {
+			// Checks if there are cars on the adjacent road
+			if (!(_rdRoadToChange._liCars.Where (a =>IsBetweenLimits(transform.position.x, a.transform.position.x))).Any()) {
 
 				// Initiates the lane change
-				StartCoroutine (ChangeLaneTransition (true, _fltAdjZ));
-
-				// Changes the car in the car road list
-				_rdCarRoad._liCars.Remove(this);
-				_liRoads [_intCurrentRoadIndex - 1]._liCars.Add (this);
-				_rdCarRoad = _liRoads [_intCurrentRoadIndex - 1];
+				StartCoroutine (ChangeLaneTransition (true, _rdRoadToChange));
 
 				// Returns true
 				return true;
@@ -394,20 +419,42 @@ public class CarBehavior : MonoBehaviour {
 	}
 
 	/*
+	 * Function 	: IsBetweenLimits()
+	 * Description  : Checks if a position is between the two global limits.
+	 */
+	bool IsBetweenLimits(float _fltCurrentXPosition, float _fltSecondXposition) {
+
+		// Checks if the position is in the range
+		return _fltCurrentXPosition + Config.FLT_SECURITY_DIST_CHANGE_LANE > _fltSecondXposition && _fltCurrentXPosition - Config.FLT_SECURITY_DIST_CHANGE_LANE < _fltSecondXposition;
+	}
+
+
+	/*
 	 * Function 	: ChangeLaneTransition()
 	 * Description  : Moves the car from a lane to another
 	 */
-	IEnumerator ChangeLaneTransition(bool _blnPositiveTranslate, float _fltEndZPos) {
+	IEnumerator ChangeLaneTransition(bool _blnPositiveTranslate, Road _rdToChange) {
+
+		// Starts the graphic lane change
+		_blnIsChangingLane = true;
+
+		// Gets the final Z position
+		float _fltEndZPos = _rdToChange.GetSpawnOrigin().z;
+
+		// Changes the car in the car road list
+		_rdCarRoad._liCars.Remove(this);
+		_rdToChange._liCars.Add (this);
+		_rdCarRoad = _rdToChange;
 
 		// If the car has no forward speed, adds just a little bit of it
 		if (_fltCarSpeed <= 0) _fltCarSpeed = 1.5f;
 
 		// Speeds the car during the change
-		_fltCarSpeed += Config.FLT_DRIVER_ACCELERATION_SPEED;
+		_fltCarSpeed += Config.FLT_DRIVER_ACCELERATION_SPEED / 2;
 		_fltCarSpeed = _fltCarSpeed > _fltCarInitialSpeed ? _fltCarInitialSpeed : _fltCarSpeed;
 
 		// Variables declaration
-		float _fltmoveSpeed = 0.008f;
+		float _fltmoveSpeed = 0.009f;
 
 		// If changing on Z+
 		if (_blnPositiveTranslate) {
@@ -437,5 +484,8 @@ public class CarBehavior : MonoBehaviour {
 
 		// Puts the car to its final Z location
 		transform.position = new Vector3(transform.position.x, transform.position.y, _fltEndZPos);
+
+		// Ends the graphic lane changing
+		_blnIsChangingLane = false;
 	}
 }

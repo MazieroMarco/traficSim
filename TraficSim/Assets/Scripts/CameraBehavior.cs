@@ -309,6 +309,7 @@ public class CameraBehavior : MonoBehaviour {
 
 				// Activates the rigidbody
 				_cbRandomCar.GetComponent<Rigidbody> ().isKinematic = false;
+				_cbRandomCar.GetComponent<BoxCollider> ().isTrigger = false;
 			}
 
 			// Speed up the car

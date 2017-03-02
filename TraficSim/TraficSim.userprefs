@@ -2,15 +2,15 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/UserInterface.cs">
     <Files>
-      <File FileName="Assets/Scripts/CarBehavior.cs" Line="112" Column="40" />
+      <File FileName="Assets/Scripts/UserInterface.cs" Line="98" Column="66" />
+      <File FileName="Assets/Scripts/CarBehavior.cs" Line="249" Column="70" />
       <File FileName="Assets/Scripts/WeatherManager.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/CameraBehavior.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/UserInterface.cs" Line="248" Column="63" />
+      <File FileName="Assets/Scripts/CameraBehavior.cs" Line="312" Column="56" />
       <File FileName="Assets/Scripts/DayAndNightControl.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/GenerationManager.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/Config.cs" Line="17" Column="42" />
-      <File FileName="Assets/Scripts/Road.cs" Line="74" Column="1" />
-      <File FileName="Assets/Scripts/MessageManager.cs" Line="71" Column="9" />
+      <File FileName="Assets/Scripts/GenerationManager.cs" Line="96" Column="4" />
+      <File FileName="Assets/Scripts/Config.cs" Line="22" Column="55" />
+      <File FileName="Assets/Scripts/Road.cs" Line="61" Column="25" />
+      <File FileName="Assets/Scripts/MessageManager.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

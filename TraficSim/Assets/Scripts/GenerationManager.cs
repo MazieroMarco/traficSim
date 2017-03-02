@@ -86,6 +86,7 @@ public class GenerationManager : MonoBehaviour {
 
 			// Instanciates a car on the scene
 			GameObject.Instantiate(Resources.Load("Truck_0" + _intCarModel));
+			//GameObject.Instantiate(Resources.Load("Car_01"));
 		} else {
 
 			// Gets a random car model
@@ -93,6 +94,7 @@ public class GenerationManager : MonoBehaviour {
 
 			// Instanciates a car on the scene
 			GameObject.Instantiate(Resources.Load("Car_0" + _intCarModel));
+			//GameObject.Instantiate(Resources.Load("Car_01"));
 		}
 	}
 }

@@ -55,6 +55,13 @@ public class Road : Component {
 			Destroy(_goCar.gameObject);
 		}
 
+		// Destroys the accidents impacts
+		foreach (GameObject _goSmoke in GameObject.FindGameObjectsWithTag("Smoke")) {
+
+			// Destroys the smoke
+			Destroy (_goSmoke);
+		}
+
 		Config.LI_GAME_ROADS.Remove(Config.LI_GAME_ROADS.FirstOrDefault(a=>a._intRoadID==this._intRoadID));
 	}
 
