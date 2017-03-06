@@ -143,12 +143,12 @@ public class CameraBehavior : MonoBehaviour {
 		if ((_caCamera1.transform.position.y < _fltCamera1DownLimit && Input.GetAxis ("Mouse ScrollWheel") < 0) || (_caCamera1.transform.position.y > _fltCamera1UpLimit && Input.GetAxis ("Mouse ScrollWheel") > 0)) {
 
 			// Moves the camera
-			_caCamera1.transform.Translate(Vector3.forward * Input.GetAxis("Mouse ScrollWheel") / 5);
+			_caCamera1.transform.Translate(Vector3.forward * Input.GetAxis("Mouse ScrollWheel") * Config.FLT_SCROLL_SENSITIVITY * Time.deltaTime);
 		}
 
 		/// Management of the camera displacement on the x axis ///
 		//Detects the left arrow key
-		if (Input.GetKey (KeyCode.LeftArrow)) {
+		if (Input.GetKey (KeyCode.LeftArrow) || Input.mousePosition.x < Screen.width / 6) {
 			// Checks the limit
 			if (_caCamera1.transform.position.x > _fltCamera1LeftLimit) {
 				// Moves the camera to the left
@@ -157,7 +157,7 @@ public class CameraBehavior : MonoBehaviour {
 		}
 
 		// Detects the right arrow key
-		if (Input.GetKey (KeyCode.RightArrow)) {
+		if (Input.GetKey (KeyCode.RightArrow) || (Input.mousePosition.x > Screen.width - Screen.width / 6 && Input.mousePosition.y < Screen.height - Screen.height / 6)) {
 			if (_caCamera1.transform.position.x < _fltCamera1RightLimit) {
 				// Moves the camera to the right
 				_caCamera1.transform.position = new Vector3(_caCamera1.transform.position.x + 7f * Time.deltaTime, _caCamera1.transform.position.y, _caCamera1.transform.position.z);
@@ -193,16 +193,16 @@ public class CameraBehavior : MonoBehaviour {
 		if (_caCamera2.transform.position.x < _fltCamera2DownLimit + 3 && Input.GetAxis ("Mouse ScrollWheel") > 0) {
 
 			// Moves the camera
-			_caCamera2.transform.Translate(Vector3.right * Input.GetAxis("Mouse ScrollWheel") * 4 * Time.deltaTime, Space.World);
+			_caCamera2.transform.Translate(Vector3.right * Input.GetAxis("Mouse ScrollWheel") * Config.FLT_SCROLL_SENSITIVITY * Time.deltaTime, Space.World);
 		} else if (_caCamera2.transform.position.x > _fltCamera2UpLimit + 3 && Input.GetAxis ("Mouse ScrollWheel") < 0) {
 
 			// Moves the camera
-			_caCamera2.transform.Translate(Vector3.right * Input.GetAxis("Mouse ScrollWheel") * 4 * Time.deltaTime, Space.World);
+			_caCamera2.transform.Translate(Vector3.right * Input.GetAxis("Mouse ScrollWheel") * Config.FLT_SCROLL_SENSITIVITY * Time.deltaTime, Space.World);
 		}
 
 		/// Management of the camera displacement on the y axis ///
 		// Detects the down arrow key
-		if (Input.GetKey (KeyCode.DownArrow)) {
+		if (Input.GetKey (KeyCode.DownArrow) || Input.mousePosition.y < Screen.height / 6) {
 			if (_caCamera2.transform.position.y > _fltCamera2HighDownLimit) {
 				// Moves the camera to the right
 				_caCamera2.transform.position = new Vector3(_caCamera2.transform.position.x, _caCamera2.transform.position.y - 1.5f * Time.deltaTime, _caCamera2.transform.position.z);
@@ -211,7 +211,7 @@ public class CameraBehavior : MonoBehaviour {
 		}
 
 		// Detects the up arrow key
-		if (Input.GetKey (KeyCode.UpArrow)) {
+		if (Input.GetKey (KeyCode.UpArrow) || (Input.mousePosition.y > Screen.height - Screen.height / 6 && Input.mousePosition.x < Screen.width - Screen.width / 4)) {
 			if (_caCamera2.transform.position.y < _fltCamera2HighUpLimit) {
 				// Moves the camera to the right
 				_caCamera2.transform.position = new Vector3(_caCamera2.transform.position.x, _caCamera2.transform.position.y + 1.5f * Time.deltaTime, _caCamera2.transform.position.z);
@@ -234,11 +234,11 @@ public class CameraBehavior : MonoBehaviour {
 			if (_caCamera3.transform.position.x < _fltCamera3DownLimit - 2 && Input.GetAxis ("Mouse ScrollWheel") > 0) {
 
 				// Moves the camera
-				_caCamera3.transform.Translate (Vector3.right * Input.GetAxis ("Mouse ScrollWheel") * 4 * Time.deltaTime, Space.World);
+				_caCamera3.transform.Translate (Vector3.right * Input.GetAxis ("Mouse ScrollWheel") * Config.FLT_SCROLL_SENSITIVITY * Time.deltaTime, Space.World);
 			} else if (_caCamera3.transform.position.x > _fltCamera3UpLimit + 3 && Input.GetAxis ("Mouse ScrollWheel") < 0) {
 
 				// Moves the camera
-				_caCamera3.transform.Translate (Vector3.right * Input.GetAxis ("Mouse ScrollWheel") * 4 * Time.deltaTime, Space.World);
+				_caCamera3.transform.Translate (Vector3.right * Input.GetAxis ("Mouse ScrollWheel") * Config.FLT_SCROLL_SENSITIVITY * Time.deltaTime, Space.World);
 			}
 		} else {
 
@@ -307,7 +307,11 @@ public class CameraBehavior : MonoBehaviour {
 				// Positioning the car
 				_cbRandomCar.transform.Translate (-3, 1, 0);
 
+				// Adds a rigid body to the car
+				_cbRandomCar.gameObject.AddComponent(typeof(Rigidbody));
+
 				// Activates the rigidbody
+				_cbRandomCar.GetComponent<Rigidbody> ().useGravity  = true;
 				_cbRandomCar.GetComponent<Rigidbody> ().isKinematic = false;
 				_cbRandomCar.GetComponent<BoxCollider> ().isTrigger = false;
 			}
@@ -330,7 +334,7 @@ public class CameraBehavior : MonoBehaviour {
 
 			// Stop the car
 			if (Input.GetKeyDown (KeyCode.P))
-				_cbRandomCar._blnCarProblem = !_cbRandomCar._blnCarProblem;
+				_cbRandomCar._blnCarProblem = true;
 
 			// Changes the camera FOV
 			_caCamera4.fieldOfView = 45;

@@ -62,6 +62,9 @@ public class Road : Component {
 			Destroy (_goSmoke);
 		}
 
+		// Disable the accidents icon
+		Config.BLN_CAR_PROBLEM_ICON = false;
+
 		Config.LI_GAME_ROADS.Remove(Config.LI_GAME_ROADS.FirstOrDefault(a=>a._intRoadID==this._intRoadID));
 	}
 
@@ -79,7 +82,8 @@ public class Road : Component {
 	 * Description  : Returns the position of the end of the road
 	 */
 	public Vector3 GetEndOfTheRoad () {
-
+		if (_liRoadPieces == null)
+			return Vector3.zero;
 		return _blnDirectionRight ? _liRoadPieces.LastOrDefault ().transform.position : _liRoadPieces.FirstOrDefault ().transform.position;
 	}
 
@@ -112,7 +116,7 @@ public class Road : Component {
 		for (i = _intRoadSize / 2 * -1; i < _intRoadSize / 2; i++) {
 
 			// Generates the new road piece
-			GameObject _goRoadPiece = (GameObject)Instantiate(Resources.Load("Road_01"));
+			GameObject _goRoadPiece = Instantiate(Resources.Load<GameObject>("Road_01"));
 
 			// Sets the road position and parent object
 			_goRoadPiece.transform.position = new Vector3 (i, 0, _fltRoadZPos);

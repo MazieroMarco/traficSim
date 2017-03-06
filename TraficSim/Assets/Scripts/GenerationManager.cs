@@ -16,7 +16,6 @@ public class GenerationManager : MonoBehaviour {
 	private float _fltGenerationTimer;	// Timer for the cars spawn
 	private int _intArrayCount;			// The current place in the average output array
 
-
 	/*
 	 * Function 	: Start()
 	 * Description  : Executed at the begining of the class initialization
@@ -48,6 +47,9 @@ public class GenerationManager : MonoBehaviour {
 			// Resets the timer
 			_fltGenerationTimer = 0;
 		}
+
+		// Sets the right stop distance
+		Config.FLT_SECURITY_DIST_CHANGE_LANE = Config.INT_SPEED_LIMIT_KMH / (120f / 3.5f);
 	}
 
 	/*
@@ -85,16 +87,14 @@ public class GenerationManager : MonoBehaviour {
 			_intCarModel = Random.Range(1, 5);
 
 			// Instanciates a car on the scene
-			GameObject.Instantiate(Resources.Load("Truck_0" + _intCarModel));
-			//GameObject.Instantiate(Resources.Load("Car_01"));
+			GameObject.Instantiate(Resources.Load<GameObject>("Truck_0" + _intCarModel));
 		} else {
 
 			// Gets a random car model
 			_intCarModel = Random.Range(1, 5);
 
 			// Instanciates a car on the scene
-			GameObject.Instantiate(Resources.Load("Car_0" + _intCarModel));
-			//GameObject.Instantiate(Resources.Load("Car_01"));
+			GameObject.Instantiate(Resources.Load<GameObject>("Car_0" + _intCarModel));
 		}
 	}
 }

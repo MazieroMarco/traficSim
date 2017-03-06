@@ -255,6 +255,20 @@ public class UserInterface : MonoBehaviour {
 		/// TIME OF DAY MANAGEMENT ///
 		// Updates the time of the day text
 		GameObject.Find("timeOfDay").GetComponent<Text>().text = Mathf.Floor((Config.FLT_TIME_OF_DAY * 24)).ToString("00") + ":" + (((Config.FLT_TIME_OF_DAY * 24) - Mathf.Floor(Config.FLT_TIME_OF_DAY * 24)) * 60).ToString("00");
+
+		/// CAR PROBLEM ICONS ///
+		// Updates the icon
+		if (Config.BLN_CAR_PROBLEM_ICON) {
+
+			// Activates the image
+			GameObject.Find("CarProblemIcon").GetComponent<Image>().enabled = true;
+			GameObject.Find("CarProblemBack").GetComponent<Image>().enabled = true;
+		} else {
+
+			// Deactivates the image
+			GameObject.Find("CarProblemIcon").GetComponent<Image>().enabled = false;
+			GameObject.Find("CarProblemBack").GetComponent<Image>().enabled = false;
+		}
 	}
 
 	/*
@@ -382,6 +396,26 @@ public class UserInterface : MonoBehaviour {
 			// Resets the timer
 			_intOutputRefreshTimer30min = 0;
 		}
+	}
+
+	/*
+	 * Function 	: StartSimulation()
+	 * Description  : Starts the simulation when the start button is pressed
+	 */
+	public void StartSimulation () {
+
+		// Updates the blur of the camera 1
+		GameObject.Find ("Camera_01").GetComponent<Blur>().iterations = 3;
+		GameObject.Find ("Camera_01").GetComponent<Blur> ().enabled   = false;
+
+		// Hides the start menu
+		GameObject.Find ("CanvasStartMenu").GetComponent<Canvas> ().enabled = false;
+
+		// Displays the outputs menu
+		GameObject.Find ("CanvasOutput").GetComponent<Canvas> ().enabled = true;
+
+		// Disables the interface mode
+		Config.BLN_IS_INTERFACE_ACTIVE = false;
 	}
 
 	/*
@@ -572,7 +606,7 @@ public class UserInterface : MonoBehaviour {
 
 			// Sets the values
 			if (i < Config.LI_LEFT_OUTPUTS.Count)
-				_v3LeftGraphPositions [i] = new Vector3 ((i * 600 / 30) - 600, Config.LI_LEFT_OUTPUTS [i] * 2f - 300f, -1f);
+				_v3LeftGraphPositions [i] = new Vector3 ((i * 600 / 30) - 600, Config.LI_LEFT_OUTPUTS [i] - 300f, -1f);
 			else if(i > 0)
 				_v3LeftGraphPositions [i] = _v3LeftGraphPositions [i - 1];	
 		}
@@ -582,7 +616,7 @@ public class UserInterface : MonoBehaviour {
 
 			// Sets the values
 			if (i < Config.LI_RIGHT_OUTPUTS.Count)
-				_v3RightGraphPositions [i] = new Vector3 ((-1 * (i * 600 / 30)) + 600, Config.LI_RIGHT_OUTPUTS [i] * 2f - 300f, -1f);
+				_v3RightGraphPositions [i] = new Vector3 ((-1 * (i * 600 / 30)) + 600, Config.LI_RIGHT_OUTPUTS [i] - 300f, -1f);
 			else if(i > 0)
 				_v3RightGraphPositions [i] = _v3RightGraphPositions [i - 1];	
 		}
@@ -675,6 +709,23 @@ public class UserInterface : MonoBehaviour {
 		GameObject.Find ("MountainTerrain").GetComponent<TerrainCollider> ().enabled = false;
 		GameObject.Find ("DesertTerrain").GetComponent<Terrain> ().enabled = true;
 		GameObject.Find ("DesertTerrain").GetComponent<TerrainCollider> ().enabled = true;
+	}
+
+	/*
+	 * Function 	: ChangeScrollSensitivity()
+	 * Description  : Changes the scroll sensitivity
+	 */
+	public void ChangeScrollSensitivity() {
+
+		// Variables declaration
+		float _fltNewSensitivity = Mathf.Round(GameObject.Find("ScrollSensitivitySlider").GetComponent<Slider>().value * 10) / 10;	// The current slider value
+		string _strNewSensitivityMenuValue = _fltNewSensitivity.ToString ();														// The value displayed next to the slider
+
+		// Updates the dropdown value
+		GameObject.Find("ScrollSensitivityValue").GetComponent<Text>().text = _strNewSensitivityMenuValue;
+
+		// Changes value
+		Config.FLT_SCROLL_SENSITIVITY = _fltNewSensitivity;
 	}
 
 	/*

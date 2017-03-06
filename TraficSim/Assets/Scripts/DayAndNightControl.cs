@@ -4,6 +4,7 @@ using UnityEngine;
 using System.Collections;
 
 public class DayAndNightControl : MonoBehaviour {
+
 	Mesh mesh;
 	public GameObject StarDome;
 	public int currentDay = 0; //day 8287... still stuck in this grass prison... no esacape... no freedom...

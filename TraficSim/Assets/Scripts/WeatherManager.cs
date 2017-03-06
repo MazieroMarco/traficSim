@@ -10,6 +10,11 @@ public class WeatherManager : MonoBehaviour {
 	public string _strWeatherName;
 	public Material _matWeatherIcon;
 
+	// Default global values
+	private float _fltAcceleration  = Config.FLT_DRIVER_ACCELERATION_SPEED;
+	private float _fltDeceleration  = Config.FLT_DRIVER_DECELERATION_SPEED;
+	private float _fltSecurityDistFactor = Config.FLT_SECURITY_DIST_FACTOR;
+
 	/*
 	 * Function 	: Start()
 	 * Description  : Executed at the begining of the class initialization
@@ -61,7 +66,7 @@ public class WeatherManager : MonoBehaviour {
 
 		case 2:
 			// Updates the weather name and icon
-			_strWeatherName = "Snow";
+			_strWeatherName = "Neige";
 			_matWeatherIcon = Resources.Load("weather_snow", typeof(Material)) as Material;
 
 			// Updates the weather
@@ -92,6 +97,11 @@ public class WeatherManager : MonoBehaviour {
 		// Enables the rain emitter
 		ParticleSystem.EmissionModule _rainEmission = _peRain.emission;
 		_rainEmission.enabled = true;
+
+		// Applies the constraints
+		Config.FLT_DRIVER_ACCELERATION_SPEED = Config.FLT_DRIVER_ACCELERATION_SPEED / 1.05f;
+		Config.FLT_DRIVER_DECELERATION_SPEED = Config.FLT_DRIVER_DECELERATION_SPEED / 1.05f;
+		Config.FLT_SECURITY_DIST_FACTOR 	 = 6 / 4;
 	}
 
 	/*
@@ -106,6 +116,12 @@ public class WeatherManager : MonoBehaviour {
 		// Enables the snow emitter
 		ParticleSystem.EmissionModule _snowEmission = _peSnow.emission;
 		_snowEmission.enabled = true;
+
+
+		// Applies the constraints
+		Config.FLT_DRIVER_ACCELERATION_SPEED = Config.FLT_DRIVER_ACCELERATION_SPEED / 1.08f;
+		Config.FLT_DRIVER_DECELERATION_SPEED = Config.FLT_DRIVER_DECELERATION_SPEED / 1.08f;
+		Config.FLT_SECURITY_DIST_FACTOR      = 7 / 4;
 	}
 
 	/*
@@ -119,5 +135,10 @@ public class WeatherManager : MonoBehaviour {
 		ParticleSystem.EmissionModule _snowEmission = _peSnow.emission;
 		_rainEmission.enabled = false;
 		_snowEmission.enabled = false;
+
+		// Resets the constraints
+		Config.FLT_DRIVER_ACCELERATION_SPEED = _fltAcceleration;
+		Config.FLT_DRIVER_DECELERATION_SPEED = _fltDeceleration;
+		Config.FLT_SECURITY_DIST_FACTOR 	 = _fltSecurityDistFactor;
 	}
 }
