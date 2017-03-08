@@ -47,6 +47,13 @@ public class Road : Component {
 			// Destroys the piece
 			Destroy(_goPiece);
 		}
+
+		// Destroys all the obstacles
+		foreach (GameObject _goObstacle in GameObject.FindGameObjectsWithTag("Obstacle")) {  
+
+			// Destroys the piece
+			Destroy(_goObstacle);
+		}
 			
 		// Destroys every car on the current road
 		foreach (CarBehavior _goCar in _liCars) {

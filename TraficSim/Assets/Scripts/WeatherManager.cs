@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
+ * Class 	   : WeatherManager
+ * Descirption : Manages all the weather animations and interactions
+ */
 public class WeatherManager : MonoBehaviour {
 
 	// Variables declaration

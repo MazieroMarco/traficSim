@@ -169,7 +169,7 @@ public class CarBehavior : MonoBehaviour {
 	void OnTriggerEnter(Collider _coCollider)
 	{
 		// The car collided something, checks if it's a car or a truck and generates an accident
-		if (_coCollider.gameObject.tag == "Car" || _coCollider.gameObject.tag == "Truck")
+		if (_coCollider.gameObject.tag == "Car" || _coCollider.gameObject.tag == "Truck" || _coCollider.gameObject.tag == "Obstacle")
 			CarAccident (_coCollider);
 	}
 
@@ -252,7 +252,20 @@ public class CarBehavior : MonoBehaviour {
 		if (Physics.Raycast (_rRangeDetection, out _rhCarInRange, _fltDetectionDist + 0.5f)) {
 
 			// Checks if the collision is a car
-			if (_rhCarInRange.transform.gameObject.GetComponent<CarBehavior>() == null) return;
+			if (_rhCarInRange.transform.gameObject.GetComponent<CarBehavior> () == null) {
+
+				// Checks if it's a obstacle
+				if (_rhCarInRange.transform.gameObject.tag == "Obstacle") {
+
+					// Slows down the car
+					_fltCarSpeed -= Config.FLT_DRIVER_DECELERATION_SPEED;
+
+				} else {
+
+					// Return
+					return;
+				}
+			};
 
 			////////////////////////////////////////////////////////////
 			/// Distance detections
