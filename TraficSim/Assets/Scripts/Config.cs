@@ -20,7 +20,7 @@ public static class Config {
 	public static float FLT_SECURITY_DIST_FACTOR  	  = 1f;			   	   // Distance for the ahead cars detection
 	public static float FLT_DRIVER_ACCELERATION_SPEED = 0.03f;			   // The acceleration speed when the driver speeds up the car
 	public static float FLT_DRIVER_DECELERATION_SPEED = 0.08f;			   // The deceleration speed when the driver slows down the car
-	public static float FLT_SECURITY_DIST_CHANGE_LANE = 3.5f;			   // The security distance to verify on the next lane before changing
+	public static float FLT_SECURITY_DIST_CHANGE_LANE = 2f;			 	   // The security distance to verify on the next lane before changing
 	public static int INT_GRAPHS_NB_DATA			  = 31;				   // The amout of data to display in the graphs
 	public static int INT_CARS_OUTPUT_LEFT 			  = 0;				   // The amount of cars passing on the left roads
 	public static int INT_CARS_OUTPUT_RIGHT 		  = 0;				   // The amount of cars passing on the right roads

@@ -49,7 +49,7 @@ public class GenerationManager : MonoBehaviour {
 		}
 
 		// Sets the right stop distance
-		Config.FLT_SECURITY_DIST_CHANGE_LANE = Config.INT_SPEED_LIMIT_KMH / (120f / 3.5f);
+		Config.FLT_SECURITY_DIST_CHANGE_LANE = Config.INT_SPEED_LIMIT_KMH / (120f / 3.2f);
 	}
 
 	/*
