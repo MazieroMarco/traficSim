@@ -49,7 +49,7 @@ public class GenerationManager : MonoBehaviour {
 		}
 
 		// Sets the right stop distance
-		Config.FLT_SECURITY_DIST_CHANGE_LANE = Config.INT_SPEED_LIMIT_KMH / (120f / 3.2f);
+		Config.FLT_SECURITY_DIST_CHANGE_LANE = Config.INT_SPEED_LIMIT_KMH / (120f / 3.5f);
 	}
 
 	/*
@@ -87,14 +87,14 @@ public class GenerationManager : MonoBehaviour {
 			_intCarModel = Random.Range(1, 5);
 
 			// Instanciates a car on the scene
-			GameObject.Instantiate(Resources.Load<GameObject>("Truck_0" + _intCarModel));
+			GameObject.Instantiate(Resources.Load("Truck_0" + _intCarModel));
 		} else {
 
 			// Gets a random car model
 			_intCarModel = Random.Range(1, 5);
 
 			// Instanciates a car on the scene
-			GameObject.Instantiate(Resources.Load<GameObject>("Car_0" + _intCarModel));
+			GameObject.Instantiate(Resources.Load("Car_0" + _intCarModel));
 		}
 	}
 }

@@ -134,7 +134,6 @@
      <Compile Include="Assets\Scripts\CarBehavior.cs" />
      <Compile Include="Assets\Scripts\Config.cs" />
      <Compile Include="Assets\Scripts\DayAndNightControl.cs" />
-     <Compile Include="Assets\Scripts\FPSDisplay.cs" />
      <Compile Include="Assets\Scripts\GenerationManager.cs" />
      <Compile Include="Assets\Scripts\Road.cs" />
      <Compile Include="Assets\Scripts\RoadPieceBehavior.cs" />

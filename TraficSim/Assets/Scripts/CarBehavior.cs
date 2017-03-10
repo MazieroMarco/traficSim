@@ -82,7 +82,7 @@ public class CarBehavior : MonoBehaviour {
 			RaycastHit _rhCarInRange;	// This is the car detected in the hit range
 
 			// Checks the presence of other cars with a raycast
-			Ray _rRangeDetection = new Ray () {direction = _v3CarDirection, origin = transform.position};
+			Ray _rRangeDetection = new Ray () {direction = _v3CarDirection, origin = new Vector3(transform.position.x, transform.position.y + 0.1f, transform.position.z)};
 
 			// Executes the raycast
 			if (Physics.Raycast ( _rRangeDetection, out _rhCarInRange, 3f)) {
@@ -112,7 +112,7 @@ public class CarBehavior : MonoBehaviour {
 		} else {
 
 			// Places the car to the start point
-			transform.position = new Vector3 (transform.position.x + _v3CarDirection.x / 1.3f, transform.position.y, transform.position.z);
+			transform.position = new Vector3 (transform.position.x + _v3CarDirection.x / 1.5f, transform.position.y, transform.position.z);
 		}
 
 		// Adds the car to the road
@@ -246,9 +246,13 @@ public class CarBehavior : MonoBehaviour {
 
 		// Variables declaration
 		RaycastHit _rhCarInRange;	// This is the car detected in the hit range
-		Ray _rRangeDetection = new Ray (){direction = _v3CarDirection, origin = transform.position};	// This is the car deteciont range
 		float _fltDetectionDist = (3 * (_fltCarSpeed * 60 * 60 / 100)) / 10 / 10 * Config.FLT_SECURITY_DIST_FACTOR; //Config.FLT_AHEAD_CAR_DETECTION_DIST;
+		Ray _rRangeDetection = new Ray (){direction = _v3CarDirection, origin = transform.position};	// This is the car deteciont range
 
+		// Sets the raycast y value for the trucks
+		if (this.tag == "Truck")
+			_rRangeDetection = new Ray (){direction = _v3CarDirection, origin = new Vector3(transform.position.x, transform.position.y + 0.05f, transform.position.z)};
+		
 		////////////////////////////////////////////////////////////
 		/// Accidents and slow cars detection
 		////////////////////////////////////////////////////////////
@@ -265,7 +269,7 @@ public class CarBehavior : MonoBehaviour {
 				else
 					_intSlowCarsCounter--;
 
-				// Checks if the collider is already changing lane or has an accident
+				// Checks if the collider has an accident
 				if (_coHitColliders [i].gameObject.GetComponent<CarBehavior> ()._blnCarProblem && _coHitColliders [i].gameObject.GetComponent<CarBehavior> ()._v3CarDirection == _v3CarDirection || _intSlowCarsCounter >= 5) {
 
 					// Slows down the current car
@@ -291,7 +295,8 @@ public class CarBehavior : MonoBehaviour {
 					_fltCarSpeed -= Config.FLT_DRIVER_DECELERATION_SPEED;
 
 					// Tries to change lane
-					ChangeLane (Config.FLT_SECURITY_DIST_CHANGE_LANE / 1.8f);
+					if (_fltCarSpeed < _fltCarInitialSpeed / 1.5)
+						ChangeLane (Config.FLT_SECURITY_DIST_CHANGE_LANE / 1.8f);
 
 					// Returns
 					return;
