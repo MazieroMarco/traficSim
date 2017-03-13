@@ -2,6 +2,31 @@
 
 Ce projet consiste à créer une simulateur de tronçon d'autoroute en tenps réel afin de pouvoir en calculer le débit de voitures en fonction de toute une liste de paramètres. Le trafic de voitures évoluera en temps réel en fonction de toute une liste de paramètres appliqués. L'affichage graphique du tronçon d'autoroute sera fait via le logiciel Unity 3D
 
+# Build - Version 1.0
+
+La version 1.0 comptent toutes les fonctionnalités prévues à la base plus quelques options supplémentaires :
+- Le nombre de voies praticables
+- La taille du tronçon d'autoroute
+- La limitation de vitesse
+- La densité du trafic
+- La fréquence des pannes
+- Changement de la météo
+- Densité de camions
+- Limitation de vitesse des camions
+- Système jour / nuit
+- Changement de l'heure du jour
+- Changement de location (forêt / désert)
+- Option de vitesse de défilement
+- Nouvel écran titre
+- Nouvel écran de paramètres
+- Split des débits par directions
+- Calcul des débits maximums et minimums sur 30 sec, 5 min et 30 min
+- Gestion des accidents
+- Nouvelle interface
+
+Le comportement des voitures à été revu et de gros bugs ont été résolus. Le dépassement ne cause plus de problèmes et les distances de sécurité sont respectées selon la vitesse et la météo.
+
+
 # Build - Version 0.9
 
 La version 0.9 ne comprend pas encore toutes les fonctionnalités prévues dans la version finale mais propose un système de simulation de trafic sur un tronçon avec quelques option modifibles :
